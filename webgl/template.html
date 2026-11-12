@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8"><title>Tellurium 3D – elliptische Erdbahn</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#04050c;font-family:system-ui,Segoe UI,Arial,sans-serif;color:#dde}
+#ui{position:absolute;top:12px;left:12px;width:300px;background:rgba(10,10,20,.78);border:1px solid #6b5220;border-radius:10px;padding:12px;font-size:13px}
+#ui h1{font-size:16px;margin:0 0 8px;color:#f0cd78}
+#ui label{display:block;margin-top:8px}
+#ui input[type=range]{width:100%}
+button{background:#3a2c10;color:#f3dc9c;border:1px solid #8a6a2a;border-radius:5px;padding:4px 7px;margin:3px 2px 0 0;cursor:pointer;font-size:12px}
+button:hover{background:#5a4418}
+#info{position:absolute;top:12px;right:12px;width:270px;background:rgba(10,10,20,.78);border:1px solid #6b5220;border-radius:10px;padding:12px;font-size:14px;line-height:1.6}
+#info b{color:#f0cd78}#datum{font-size:22px;font-weight:bold;color:#fff}
+#warn{position:absolute;bottom:12px;left:12px;background:rgba(0,0,0,.6);color:#ffbe5a;padding:6px 10px;border-radius:6px;font-size:13px}
+#note{position:absolute;bottom:12px;right:12px;background:rgba(0,0,0,.5);color:#aab;padding:6px 10px;border-radius:6px;font-size:11px;max-width:420px}
+</style>
+<script type="importmap">{"imports":{"three":"__THREE__","three/addons/":"__ADDONS__"}}</script>
+</head><body>
+<div id="ui"><h1>Tellurium – Erdbahn nach Kepler</h1>
+<button id="play">⏸ Pause</button>
+<label>Geschwindigkeit: <span id="spv"></span> Tage/s<input id="speed" type="range" min="0" max="120" step="1" value="20"></label>
+<label>Datum <input id="datepick" type="date" value="2026-01-03"><input id="doy" type="range" min="0" max="364.99" step="0.01" value="2"></label>
+<div><button data-d="2">Perihel</button><button data-d="184">Aphel</button><button data-d="171">Sommersonnenwende</button><button data-d="354">Wintersonnenwende</button><button data-d="78">Frühlings-TNG</button><button data-d="265">Herbst-TNG</button></div>
+<label>Exzentrizität: <span id="ev"></span><input id="ecc" type="range" min="0.0167" max="0.3" step="0.0001" value="0.25"></label>
+<button id="real">Real (0,0167)</button>
+<label><input type="checkbox" id="circ" checked> Vergleichskreis (gestrichelt)</label>
+<label><input type="checkbox" id="marks" checked> Brennpunkte / Mittelpunkt / Jahrespunkte</label>
+<label><input type="checkbox" id="realspin"> Echte Erddrehung (365×/Jahr)</label>
+<label><input type="checkbox" id="shadows" checked> Schatten</label>
+<label><input type="checkbox" id="follow"> Kamera folgt der Erde</label>
+</div>
+<div id="info"><div id="datum"></div>
+<b>Abstand Sonne:</b> <span id="dist"></span><br><b>Bahngeschwindigkeit:</b> <span id="vel"></span><br>
+<b>Mondphase:</b> <span id="phase"></span><br><b>Jahreszeit (Nordhalbkugel):</b> <span id="season"></span></div>
+<div id="warn"></div>
+<div id="note">Abstände/Geschwindigkeit im Infofeld: reale Werte (e = 0,0167). Grössen und Abstände im Modell nicht massstäblich. Erdachse 23,44°, raumfest; rote Nadel: Schweiz (46,8° N, 8,2° O). Maus: drehen · Rad: zoomen · Rechtsklick: verschieben.</div>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+const EARTH_TEX='__EARTH__';
+const EPS=23.44*Math.PI/180, LP=102.9*Math.PI/180, E_REAL=0.0167, A=4.3, AU=1.496e8;
+const RS=0.62,RE=0.40,RM=0.12,RMO=0.80, YEAR=365.25;
+const MON=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+const ML=[31,28,31,30,31,30,31,31,30,31,30,31];
+let e=0.25, Mvis=0, playing=true, daysPerSec=20;
+const $=id=>document.getElementById(id);
+function kepler(M,e){let E=M;for(let i=0;i<40;i++)E-= (E-e*Math.sin(E)-M)/(1-e*Math.cos(E));return E}
+const nuOfM=(M,e)=>{const E=kepler(M,e);return 2*Math.atan2(Math.sqrt(1+e)*Math.sin(E/2),Math.sqrt(1-e)*Math.cos(E/2))};
+const MofNu=(nu,e)=>{const E=2*Math.atan2(Math.sqrt(1-e)*Math.sin(nu/2),Math.sqrt(1+e)*Math.cos(nu/2));return E-e*Math.sin(E)};
+const mod=(a,b)=>((a%b)+b)%b;
+// day-of-year (0=1 Jan 0h) from true anomaly using REAL eccentricity; perihelion at day 2.5 (3 Jan)
+const doyOfNu=nu=>mod(MofNu(nu,E_REAL)/(2*Math.PI)*YEAR+2.5,YEAR);
+const nuOfDoy=d=>nuOfM(2*Math.PI*(d-2.5)/YEAR,E_REAL);
+const rVis=nu=>A*(1-e*e)/(1+e*Math.cos(nu));
+const posVis=nu=>{const r=rVis(nu),L=nu+LP;return new THREE.Vector3(r*Math.cos(L),r*Math.sin(L),0)};
+
+// ---------- scene ----------
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+document.body.appendChild(renderer.domElement);
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x04050c);
+const camera=new THREE.PerspectiveCamera(45,innerWidth/innerHeight,0.05,500);
+const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;
+// ecliptic frame: x,y in plane, z = ecliptic north  -> three.js y-up
+const ecl=new THREE.Group();ecl.rotation.x=-Math.PI/2;scene.add(ecl);
+{ // camera like r.py
+ const az=LP+Math.PI/2+Math.PI,el=40*Math.PI/180,d=15;
+ const p=new THREE.Vector3(d*Math.cos(el)*Math.cos(az),d*Math.cos(el)*Math.sin(az),d*Math.sin(el));
+ camera.position.copy(p.applyMatrix4(ecl.matrixWorld.clone().makeRotationX(-Math.PI/2)));controls.update();
+}
+// stars
+{const g=new THREE.BufferGeometry(),n=3000,p=new Float32Array(n*3),c=new Float32Array(n*3);
+ for(let i=0;i<n;i++){const v=new THREE.Vector3().randomDirection().multiplyScalar(150+Math.random()*100);p.set([v.x,v.y,v.z],i*3);const b=.3+Math.random()*.7;c.set([b,b,b*1.05],i*3)}
+ g.setAttribute('position',new THREE.BufferAttribute(p,3));g.setAttribute('color',new THREE.BufferAttribute(c,3));
+ scene.add(new THREE.Points(g,new THREE.PointsMaterial({size:0.6,vertexColors:true,sizeAttenuation:true})))}
+scene.add(new THREE.AmbientLight(0x404858,0.08));
+const brass=new THREE.MeshStandardMaterial({color:0xc9a04a,metalness:0.85,roughness:0.32});
+const darkBrass=new THREE.MeshStandardMaterial({color:0x7a5a22,metalness:0.8,roughness:0.45});
+const silver=new THREE.MeshStandardMaterial({color:0xe6e8ee,metalness:0.9,roughness:0.2});
+// hemisphere fill so the brass mechanics remain visible (does not affect Earth/Moon shading much)
+const hemi=new THREE.HemisphereLight(0x8899bb,0x221a10,0.12);scene.add(hemi);
+// Sun
+const sunLight=new THREE.PointLight(0xfff2d8,3.2,0,0);sunLight.castShadow=true;sunLight.shadow.mapSize.set(1024,1024);sunLight.shadow.camera.near=0.7;ecl.add(sunLight);
+const sun=new THREE.Mesh(new THREE.SphereGeometry(RS,64,32),new THREE.MeshBasicMaterial({color:0xffd060}));ecl.add(sun);
+function glowTex(){const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');const g=x.createRadialGradient(128,128,0,128,128,128);
+ g.addColorStop(0,'rgba(255,240,180,1)');g.addColorStop(.25,'rgba(255,200,90,.8)');g.addColorStop(.5,'rgba(255,140,40,.25)');g.addColorStop(1,'rgba(255,100,0,0)');x.fillStyle=g;x.fillRect(0,0,256,256);return new THREE.CanvasTexture(c)}
+const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex(),blending:THREE.AdditiveBlending,depthWrite:false,transparent:true}));glow.scale.set(4.2,4.2,1);ecl.add(glow);
+// Base, pillar, decorative gears
+const BASEZ=-1.9;
+const base=new THREE.Mesh(new THREE.CylinderGeometry(2.2,2.5,0.35,96),darkBrass);base.rotation.x=Math.PI/2;base.position.z=BASEZ;base.receiveShadow=true;ecl.add(base);
+const pillar=new THREE.Mesh(new THREE.CylinderGeometry(0.09,0.12,-BASEZ-RS+0.05,24),brass);pillar.rotation.x=Math.PI/2;pillar.position.z=(BASEZ-RS)/2;ecl.add(pillar);
+function gear(R,teeth,th){const s=new THREE.Shape();for(let i=0;i<teeth*2;i++){const a=i*Math.PI/teeth,r=i%2?R*0.9:R;const a2=a+Math.PI/teeth;if(i==0)s.moveTo(r*Math.cos(a),r*Math.sin(a));s.lineTo(r*Math.cos(a),r*Math.sin(a));s.lineTo(r*Math.cos(a2),r*Math.sin(a2))}
+ const h=new THREE.Path();h.absarc(0,0,R*0.25,0,Math.PI*2,true);s.holes.push(h);
+ const m=new THREE.Mesh(new THREE.ExtrudeGeometry(s,{depth:th,bevelEnabled:false}),brass);m.castShadow=true;return m}
+const gears=[];[[0,0,1.0,48],[1.45,0.3,0.48,24],[-0.9,-1.25,0.55,26]].forEach(([x,y,r,t],i)=>{const g=gear(r,t,0.08);g.position.set(x,y,BASEZ+0.18+i*0.01);ecl.add(g);gears.push([g,(i?-1:1)*48/t])});
+// Arm (pivot at pillar, along radius vector, sits below orbit plane)
+const ARMZ=-0.75;
+const armPivot=new THREE.Group();armPivot.position.z=ARMZ;ecl.add(armPivot);
+const arm=new THREE.Mesh(new THREE.BoxGeometry(1,0.12,0.06),brass);arm.castShadow=true;armPivot.add(arm);
+const armPost=new THREE.Mesh(new THREE.CylinderGeometry(0.035,0.05,1,16),brass);armPost.rotation.x=Math.PI/2;ecl.add(armPost);
+const hub=new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.2,0.12,32),brass);hub.rotation.x=Math.PI/2;armPivot.add(hub);
+// Orbit ring (rebuilt on eccentricity change) + circle + markers
+let ring,circle,markerGroup;
+function buildOrbit(){
+ [ring,circle,markerGroup].forEach(o=>{if(o){ecl.remove(o);o.traverse(c=>c.geometry&&c.geometry.dispose())}});
+ const pts=[];for(let i=0;i<=360;i++)pts.push(posVis(i/360*2*Math.PI));
+ ring=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts,true),400,0.035,10,true),brass);ring.castShadow=true;ecl.add(ring);
+ const cen=new THREE.Vector3(-A*e*Math.cos(LP),-A*e*Math.sin(LP),0);
+ const cp=[];for(let i=0;i<=256;i++){const t=i/256*2*Math.PI;cp.push(cen.clone().add(new THREE.Vector3(A*Math.cos(t),A*Math.sin(t),0)))}
+ const cg=new THREE.BufferGeometry().setFromPoints(cp);circle=new THREE.Line(cg,new THREE.LineDashedMaterial({color:0x8a8ab0,dashSize:0.15,gapSize:0.12}));circle.computeLineDistances();circle.visible=$('circ').checked;ecl.add(circle);
+ markerGroup=new THREE.Group();markerGroup.visible=$('marks').checked;ecl.add(markerGroup);
+ const dot=(p,col,r=0.06)=>{const m=new THREE.Mesh(new THREE.SphereGeometry(r,16,8),new THREE.MeshBasicMaterial({color:col}));m.position.copy(p);markerGroup.add(m)};
+ dot(cen,0x9999bb,0.05);dot(cen.clone().multiplyScalar(2),0xbbbbdd,0.07);
+ markerGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([posVis(0),posVis(Math.PI)]),new THREE.LineBasicMaterial({color:0x6a5a3a})));
+ const lab=(txt,p,col)=>{const c=document.createElement('canvas');c.width=512;c.height=96;const x=c.getContext('2d');x.font='bold 34px sans-serif';x.fillStyle=col;x.textAlign='center';txt.split('\n').forEach((l,i)=>x.fillText(l,256,40+i*40));
+  const s=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthWrite:false,transparent:true}));s.scale.set(2.4,0.45,1);s.position.copy(p).add(new THREE.Vector3(0,0,0.45));markerGroup.add(s)};
+ dot(posVis(0),0xffc86e,0.08);lab('Perihel ~147 Mio. km\n~3. Januar',posVis(0),'#ffc86e');
+ dot(posVis(Math.PI),0xffc86e,0.08);lab('Aphel ~152 Mio. km\n~4. Juli',posVis(Math.PI),'#ffc86e');
+ [[Math.PI/2,'Wintersonnenwende\n~21. Dez.'],[Math.PI,'Frühlings-TNG\n~20. März'],[1.5*Math.PI,'Sommersonnenwende\n~21. Juni'],[0,'Herbst-TNG\n~23. Sept.']].forEach(([L,t])=>{const p=posVis(L-LP);dot(p,0x8cc8ff);lab(t,p,'#96cdff')});
+ lab('Mittelpunkt',cen,'#9999bb');lab('leerer Brennpunkt',cen.clone().multiplyScalar(2),'#bbbbdd');lab('Sonne = Brennpunkt',new THREE.Vector3(0,0,0.5),'#ffd070');
+}
+// Earth system
+const earthSys=new THREE.Group();ecl.add(earthSys);       // at Earth position, axes parallel to ecliptic
+const moonRing=new THREE.Mesh(new THREE.TorusGeometry(RMO,0.022,10,128),silver);moonRing.castShadow=true;earthSys.add(moonRing);
+const moonSpoke=new THREE.Mesh(new THREE.BoxGeometry(1,0.03,0.03),silver);earthSys.add(moonSpoke);
+const eq=new THREE.Group();eq.rotation.x=-EPS;earthSys.add(eq);  // local z = pole (tilted toward ecliptic lon 90°)
+const tex=new THREE.TextureLoader().load(EARTH_TEX);tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;
+const earth=new THREE.Mesh(new THREE.SphereGeometry(RE,96,64),new THREE.MeshStandardMaterial({map:tex,roughness:0.75,metalness:0}));
+earth.rotation.order='ZXY';earth.castShadow=earth.receiveShadow=true;
+const spinG=new THREE.Group();eq.add(spinG);earth.rotation.x=Math.PI/2;spinG.add(earth); // after this: lon λ at angle λ in eq xy-plane
+const axis=new THREE.Mesh(new THREE.CylinderGeometry(0.012,0.012,RE*3.2,8),brass);axis.rotation.x=Math.PI/2;eq.add(axis);
+const cap=new THREE.Mesh(new THREE.SphereGeometry(0.04,16,8),brass);cap.position.z=RE*1.6;eq.add(cap);
+{ // pin on Switzerland, in sphere-local coords
+ const la=46.8*Math.PI/180,lo=8.2*Math.PI/180;const n=new THREE.Vector3(Math.cos(la)*Math.cos(lo),Math.sin(la),-Math.cos(la)*Math.sin(lo));
+ const pin=new THREE.Group();const needle=new THREE.Mesh(new THREE.CylinderGeometry(0.006,0.006,0.22,6),new THREE.MeshStandardMaterial({color:0xdddddd,metalness:.9,roughness:.2}));needle.position.y=0.11;pin.add(needle);
+ const head=new THREE.Mesh(new THREE.SphereGeometry(0.035,16,8),new THREE.MeshStandardMaterial({color:0xe01818,roughness:.4,emissive:0x400000}));head.position.y=0.22;pin.add(head);
+ pin.position.copy(n.clone().multiplyScalar(RE*0.98));pin.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),n);earth.add(pin);
+}
+const moon=new THREE.Mesh(new THREE.SphereGeometry(RM,48,24),new THREE.MeshStandardMaterial({color:0xc8c8cc,roughness:0.95}));moon.castShadow=moon.receiveShadow=true;earthSys.add(moon);
+
+// ---------- update ----------
+const PH=['Neumond','zunehmende Sichel','erstes Viertel','zunehmender Mond','Vollmond','abnehmender Mond','letztes Viertel','abnehmende Sichel'];
+let curDoy=2.5;
+function update(){
+ const nu=nuOfM(Mvis,e);const p=posVis(nu);earthSys.position.copy(p);
+ const L=Math.atan2(p.y,p.x),r=p.length();
+ armPivot.rotation.z=L;arm.scale.x=r;arm.position.x=r/2;armPost.position.set(p.x,p.y,(ARMZ+0)/2-0.2);armPost.scale.y=Math.abs(ARMZ)+0.0;armPost.position.z=ARMZ/2;
+ armPost.position.z=ARMZ/2-0.01;armPost.scale.y=-ARMZ-RE*0+0.0; // post from arm up to Earth's moon ring plane
+ const d=doyOfNu(nu);curDoy=d;
+ // date text
+ let dd=Math.floor(d),m=0;while(m<11&&dd>=ML[m]){dd-=ML[m];m++}
+ const hours=(d%1)*24;
+ $('datum').textContent=`${dd+1}. ${MON[m]}  ${String(Math.floor(hours)).padStart(2,'0')}:${String(Math.floor(hours%1*60)).padStart(2,'0')} UTC`;
+ const rr=AU*(1-E_REAL**2)/(1+E_REAL*Math.cos(nu)),v=29.78*Math.sqrt(2*AU/rr-1);
+ $('dist').textContent=(rr/1e6).toFixed(2).replace('.',',')+' Mio. km';$('vel').textContent=v.toFixed(2).replace('.',',')+' km/s';
+ const Ls=mod((L+Math.PI)*180/Math.PI,360); // apparent solar longitude
+ $('season').textContent=Ls<90?'Frühling':Ls<180?'Sommer':Ls<270?'Herbst':'Winter';
+ // Moon: elongation from 12.37 synodic months/yr, full moon at perihelion epoch (as in r.py)
+ const elong=mod(2*Math.PI*(d-2.5)/29.5306+Math.PI,2*Math.PI);const sunDir=L+Math.PI;
+ const ma=sunDir+elong;moon.position.set(RMO*Math.cos(ma),RMO*Math.sin(ma),0);moonSpoke.rotation.z=ma;moonSpoke.scale.x=RMO;moonSpoke.position.set(RMO/2*Math.cos(ma),RMO/2*Math.sin(ma),0);
+ const illum=(1-Math.cos(elong))/2;$('phase').textContent=PH[Math.floor(mod(elong/(2*Math.PI)*8+0.5,8))]+` (${Math.round(illum*100)} % beleuchtet)`;
+ // Earth spin: subsolar longitude from time of day (real) or 20 turns/year (slowed)
+ const frac=$('realspin').checked? d%1 : mod((d-2.5)/YEAR*20,1);
+ const lonSub=-(frac*24-12)*15*Math.PI/180;
+ earthSys.updateMatrixWorld(true);
+ const sl=eq.worldToLocal(sun.getWorldPosition(new THREE.Vector3())).normalize();
+ spinG.rotation.z=Math.atan2(sl.y,sl.x)-lonSub;
+ sun.rotation.z+=0.002;gears.forEach(([g,k])=>g.rotation.z=Mvis*k*0.5);
+ if($('follow').checked){const w=earth.getWorldPosition(new THREE.Vector3());controls.target.lerp(w,0.2)}
+ $('warn').textContent=e>0.0168?`⚠ Exzentrizität übertrieben: ${e.toFixed(3).replace('.',',')} (real: 0,0167)`:'Exzentrizität real: 0,0167 (Ellipse kaum vom Kreis zu unterscheiden)';
+ if(document.activeElement!==$('doy'))$('doy').value=d.toFixed(2);
+ if(document.activeElement!==$('datepick')){const dt=new Date(Date.UTC(2026,0,1)+d*864e5);$('datepick').value=dt.toISOString().slice(0,10)}
+}
+function setDoy(d){Mvis=MofNu(nuOfDoy(d),e);update()}
+// ---------- UI ----------
+$('play').onclick=()=>{playing=!playing;$('play').textContent=playing?'⏸ Pause':'▶ Abspielen'};
+const spd=()=>{daysPerSec=+$('speed').value;$('spv').textContent=daysPerSec};$('speed').oninput=spd;spd();
+$('doy').oninput=ev=>{playing=false;$('play').textContent='▶ Abspielen';setDoy(+ev.target.value)};
+$('datepick').onchange=ev=>{const t=Date.parse(ev.target.value+'T12:00:00Z');if(!isNaN(t)){const y=new Date(t).getUTCFullYear();setDoy(mod((t-Date.UTC(y,0,1))/864e5,YEAR))}};
+document.querySelectorAll('button[data-d]').forEach(b=>b.onclick=()=>{playing=false;$('play').textContent='▶ Abspielen';
+ const k=b.textContent;const nu={'Perihel':0,'Aphel':Math.PI,'Sommersonnenwende':1.5*Math.PI-LP,'Wintersonnenwende':Math.PI/2-LP,'Frühlings-TNG':Math.PI-LP,'Herbst-TNG':-LP}[k];
+ Mvis=MofNu(nu,e);update()});
+const setE=v=>{const d=curDoy;e=v;$('ev').textContent=e.toFixed(4).replace('.',',');buildOrbit();setDoy(d)};
+$('ecc').oninput=ev=>setE(+ev.target.value);$('real').onclick=()=>{$('ecc').value=0.0167;setE(0.0167)};
+$('circ').onchange=ev=>circle.visible=ev.target.checked;$('marks').onchange=ev=>markerGroup.visible=ev.target.checked;
+$('shadows').onchange=ev=>{sunLight.castShadow=ev.target.checked};
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+// API for tests / deep links
+window.tell={setDoy,setNu:nu=>{Mvis=MofNu(nu,e);update()},camera,controls,THREE,earth,pause:()=>{playing=false},
+ lookAtEarth:(dist=2.2)=>{const w=earth.getWorldPosition(new THREE.Vector3());const s=sun.getWorldPosition(new THREE.Vector3());const dir=w.clone().sub(s).normalize();
+  const side=new THREE.Vector3(0,1,0).cross(dir).normalize();controls.target.copy(w);camera.position.copy(w).addScaledVector(dir,-dist*0.55).addScaledVector(side,dist*0.8).add(new THREE.Vector3(0,dist*0.45,0));controls.update()}};
+setE(0.25);setDoy(2.5);
+let last=performance.now();
+renderer.setAnimationLoop(now=>{const dt=Math.min(0.1,(now-last)/1000);last=now;
+ if(playing){Mvis+=2*Math.PI*daysPerSec*dt/YEAR;update()}controls.update();renderer.render(scene,camera)});
+window.__ready=true;
+</script></body></html>

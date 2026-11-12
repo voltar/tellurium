@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8"><title>Die Erde reist um die Sonne</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>
+:root{--bg:#100e0c;--surf:#2c2118;--line:#5a4526;--acc:#e0b15a;--fg:#f6efe4;--mut:#cbb89a}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);font-family:"Source Sans 3","Segoe UI",system-ui,Arial,sans-serif;font-size:19px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+main{max-width:760px;margin:0 auto;padding:14px 14px 40px}
+h1{font-family:Fraunces,Palatino,"Palatino Linotype",Georgia,serif;font-size:30px;margin:6px 0 10px;font-weight:600}
+.guide{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}
+.guide .who{font-size:52px;line-height:1;flex:none}
+.bubble{position:relative;background:var(--fg);color:#2a1e10;border-radius:20px;padding:12px 16px;font-size:21px;font-weight:600;min-height:64px;flex:1}
+.bubble:before{content:"";position:absolute;left:-10px;top:20px;border:10px solid transparent;border-right-color:var(--fg);border-left:0}
+.bubble small{display:block;font-weight:400;font-size:15px;color:#6b5636;margin-top:4px}
+#view{position:relative;height:min(58vh,480px);border:1px solid var(--line);border-radius:20px;overflow:hidden;background:#04050c;touch-action:none}
+#view canvas{display:block;width:100%!important;height:100%!important}
+#hint{position:absolute;top:8px;right:10px;font-size:14px;color:var(--mut);background:rgba(0,0,0,.45);padding:3px 9px;border-radius:99px;pointer-events:none}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:14px 0 6px}
+#datum{font-family:Fraunces,Palatino,Georgia,serif;font-size:30px;font-weight:600}
+#sub{color:var(--mut);font-size:17px}
+button,select{font:inherit;color:var(--fg);background:transparent;border:2px solid var(--line);border-radius:99px;cursor:pointer;min-height:52px;padding:6px 16px}
+button:active{transform:scale(.97)}
+button.on,#play{background:var(--acc);color:#241806;border-color:var(--acc);font-weight:700}
+#play{font-size:22px;min-width:130px}
+#months{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin:8px 0 4px}
+#months button{min-height:58px;padding:2px 0;border-radius:12px;font-size:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-width:2px;line-height:1.15}
+#months button span{font-size:22px}
+#months button.on{background:var(--acc);color:#241806}
+h2{font-size:20px;margin:18px 0 8px;color:var(--mut);font-weight:600}
+#scenes{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#scenes button{border-radius:20px;min-height:76px;font-size:20px;font-weight:700;background:var(--surf);border-color:var(--line);text-align:left;padding:8px 16px}
+#scenes button.on{border-color:var(--acc);background:#3d2d18;color:var(--fg)}
+.card{background:var(--surf);border:1px solid var(--line);border-radius:20px;padding:14px 16px;margin-top:12px}
+.flex{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+#moonIcon{font-size:52px;line-height:1}
+#moonName{font-size:24px;font-weight:700}
+select{background:var(--surf);padding:6px 12px;border-radius:14px}
+details{margin-top:18px;border-top:1px solid var(--line);padding-top:8px;font-size:16px;color:var(--mut)}
+summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-size:17px}
+details label{display:block;margin:8px 0}details input[type=range]{width:100%}
+details b{color:var(--fg)}
+@media(max-width:560px){h1{font-size:25px}#datum{font-size:25px}.bubble{font-size:19px}#view{height:46vh}
+ #months{grid-template-columns:repeat(6,1fr)}#scenes button{font-size:18px;min-height:68px}}
+</style>
+<script type="importmap">{"imports":{"three":"__THREE__","three/addons/":"__ADDONS__"}}</script>
+</head><body><main>
+<h1>🌍 Die Erde reist um die Sonne</h1>
+<div class="guide"><div class="who" aria-hidden="true">🦉</div><div class="bubble" id="say"></div></div>
+<div id="view"><div id="hint">👆 Wischen = drehen · 🤏 zoomen</div></div>
+<div class="row"><div><div id="datum"></div><div id="sub"></div></div><button id="play">⏸ Stopp</button></div>
+<div id="months"></div>
+<h2>Was willst du sehen?</h2>
+<div id="scenes">
+<button data-s="tag">☀️ Tag &amp; Nacht</button>
+<button data-s="jahr">🌸☀️🍂❄️ Jahreszeiten</button>
+<button data-s="mond">🌙 Mond</button>
+<button data-s="ch">🏠 Wo ist die Schweiz?</button>
+</div>
+<div class="card flex"><div id="moonIcon">🌕</div><div><div style="color:var(--mut);font-size:16px">Der Mond heute</div><div id="moonName"></div></div></div>
+<div class="card"><div style="font-size:20px;font-weight:700;margin-bottom:8px">🎂 Wann hast du Geburtstag?</div>
+<div class="flex"><select id="bday" aria-label="Tag"></select><select id="bmon" aria-label="Monat"></select><button id="bgo" class="on">Los! 🚀</button></div></div>
+<button id="home" style="margin-top:12px;width:100%">🔭 Alles von oben ansehen</button>
+<details id="gross"><summary>👨‍👩‍👧 Für Große</summary>
+<p>Physik im Hintergrund: Erdbahn als Ellipse, Sonne im Brennpunkt, Keplerbewegung (Perihel ~3. Jan, Aphel ~4. Juli), Erdachse 23,44° raumfest, roter Pin = Schweiz, Mondphasen aus 29,53 Tagen. Ellipse sichtbar übertrieben. Grössen/Abstände nicht massstäblich. Jahreszeiten-Streifen: meteorologisch (Monate).</p>
+<b>Datum/Zeit:</b> <span id="xdate"></span><br><b>Abstand Sonne:</b> <span id="dist"></span><br><b>Bahngeschwindigkeit:</b> <span id="vel"></span><br><b>Mond beleuchtet:</b> <span id="illum"></span>
+<label>Exzentrizität im Bild: <span id="ev"></span><input id="ecc" type="range" min="0.0167" max="0.3" step="0.0001" value="0.2"></label>
+<label>Tempo: <span id="spv"></span> Tage/s<input id="speed" type="range" min="1" max="60" step="1" value="12"></label>
+<label><input type="checkbox" id="marks"> Perihel, Aphel, Sonnenwenden, Vergleichskreis</label>
+<label><input type="checkbox" id="realspin"> Echte Erddrehung (365×/Jahr)</label>
+</details>
+</main>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+const EARTH_TEX='__EARTH__';
+const EPS=23.44*Math.PI/180, LP=102.9*Math.PI/180, E_REAL=0.0167, A=4.3, AU=1.496e8;
+const RS=0.75,RE=0.42,RM=0.13,RMO=0.85, YEAR=365.25;
+const MON=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+const MS=['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+const ML=[31,28,31,30,31,30,31,31,30,31,30,31];
+const SE=m=>m==11||m<2?['❄️','Winter']:m<5?['🌸','Frühling']:m<8?['☀️','Sommer']:['🍂','Herbst'];
+let e=0.2, Mvis=0, playing=true, daysPerSec=12, spinMode='slow';
+const $=id=>document.getElementById(id);
+function kepler(M,e){let E=M;for(let i=0;i<40;i++)E-=(E-e*Math.sin(E)-M)/(1-e*Math.cos(E));return E}
+const nuOfM=(M,e)=>{const E=kepler(M,e);return 2*Math.atan2(Math.sqrt(1+e)*Math.sin(E/2),Math.sqrt(1-e)*Math.cos(E/2))};
+const MofNu=(nu,e)=>{const E=2*Math.atan2(Math.sqrt(1-e)*Math.sin(nu/2),Math.sqrt(1+e)*Math.cos(nu/2));return E-e*Math.sin(E)};
+const mod=(a,b)=>((a%b)+b)%b;
+const doyOfNu=nu=>mod(MofNu(nu,E_REAL)/(2*Math.PI)*YEAR+2.5,YEAR);
+const nuOfDoy=d=>nuOfM(2*Math.PI*(d-2.5)/YEAR,E_REAL);
+const rVis=nu=>A*(1-e*e)/(1+e*Math.cos(nu));
+const posVis=nu=>{const r=rVis(nu),L=nu+LP;return new THREE.Vector3(r*Math.cos(L),r*Math.sin(L),0)};
+const doyToMD=d=>{let dd=Math.floor(d),m=0;while(m<11&&dd>=ML[m]){dd-=ML[m];m++}return [dd+1,m]};
+// ---------- scene ----------
+const view=$('view');
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;renderer.toneMapping=THREE.ACESFilmicToneMapping;
+view.appendChild(renderer.domElement);
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x04050c);
+const camera=new THREE.PerspectiveCamera(45,1,0.05,500);
+const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.enablePan=false;controls.minDistance=1.2;controls.maxDistance=30;
+function resize(){const w=view.clientWidth,h=view.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
+addEventListener('resize',resize);resize();
+const ecl=new THREE.Group();ecl.rotation.x=-Math.PI/2;scene.add(ecl);
+const E2W=v=>new THREE.Vector3(v.x,v.z,-v.y); // ecliptic -> world
+{const g=new THREE.BufferGeometry(),n=2000,p=new Float32Array(n*3);
+ for(let i=0;i<n;i++){const v=new THREE.Vector3().randomDirection().multiplyScalar(150+Math.random()*100);p.set([v.x,v.y,v.z],i*3)}
+ g.setAttribute('position',new THREE.BufferAttribute(p,3));scene.add(new THREE.Points(g,new THREE.PointsMaterial({size:0.5,color:0xbbbbcc})))}
+scene.add(new THREE.AmbientLight(0x404858,0.12));scene.add(new THREE.HemisphereLight(0x8899bb,0x221a10,0.15));
+const brass=new THREE.MeshStandardMaterial({color:0xc9a04a,metalness:0.85,roughness:0.32});
+const silver=new THREE.MeshStandardMaterial({color:0xe6e8ee,metalness:0.9,roughness:0.2});
+const sunLight=new THREE.PointLight(0xfff2d8,3.4,0,0);sunLight.castShadow=true;sunLight.shadow.mapSize.set(1024,1024);sunLight.shadow.camera.near=0.8;ecl.add(sunLight);
+const sun=new THREE.Mesh(new THREE.SphereGeometry(RS,64,32),new THREE.MeshBasicMaterial({color:0xffc850}));ecl.add(sun);
+{const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');const g=x.createRadialGradient(128,128,0,128,128,128);
+ g.addColorStop(0,'rgba(255,240,180,1)');g.addColorStop(.25,'rgba(255,200,90,.8)');g.addColorStop(.5,'rgba(255,140,40,.25)');g.addColorStop(1,'rgba(255,100,0,0)');x.fillStyle=g;x.fillRect(0,0,256,256);
+ const s=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),blending:THREE.AdditiveBlending,depthWrite:false,transparent:true}));s.scale.set(4.6,4.6,1);ecl.add(s)}
+function label(txt,col,w=2.2,h=0.55){const c=document.createElement('canvas');c.width=512;c.height=128;const x=c.getContext('2d');x.font='bold 76px sans-serif';x.fillStyle=col;x.textAlign='center';x.textBaseline='middle';x.fillText(txt,256,64);
+ const s=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthWrite:false,transparent:true}));s.scale.set(w,h,1);return s}
+const sunLab=label('☀️ Sonne','#ffd070',2.4,0.6);sunLab.position.set(0,0,1.3);ecl.add(sunLab);
+let ring,circle,markerGroup,monthGroup;
+function buildOrbit(){
+ [ring,circle,markerGroup,monthGroup].forEach(o=>{if(o)ecl.remove(o)});
+ const pts=[];for(let i=0;i<=360;i++)pts.push(posVis(i/360*2*Math.PI));
+ ring=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts,true),400,0.04,10,true),brass);ecl.add(ring);
+ monthGroup=new THREE.Group();ecl.add(monthGroup);
+ for(let m=0;m<12;m++){let d=0;for(let i=0;i<m;i++)d+=ML[i];const p=posVis(nuOfDoy(d+14));const s=label(SE(m)[0]+' '+MS[m],'#e8c27a',2.3,0.57);
+  s.position.copy(p.clone().multiplyScalar(1+1.0/p.length())).add(new THREE.Vector3(0,0,0.15));monthGroup.add(s)}
+ const cen=new THREE.Vector3(-A*e*Math.cos(LP),-A*e*Math.sin(LP),0);
+ const cp=[];for(let i=0;i<=256;i++){const t=i/256*2*Math.PI;cp.push(cen.clone().add(new THREE.Vector3(A*Math.cos(t),A*Math.sin(t),0)))}
+ markerGroup=new THREE.Group();markerGroup.visible=$('marks').checked;ecl.add(markerGroup);
+ circle=new THREE.Line(new THREE.BufferGeometry().setFromPoints(cp),new THREE.LineDashedMaterial({color:0x8a8ab0,dashSize:0.15,gapSize:0.12}));circle.computeLineDistances();markerGroup.add(circle);
+ [[0,'Perihel'],[Math.PI,'Aphel'],[Math.PI/2-LP,'Wintersonnenwende'],[1.5*Math.PI-LP,'Sommersonnenwende']].forEach(([nu,t])=>{const p=posVis(nu);const s=label(t,'#96cdff',2.2,0.5);s.position.copy(p).add(new THREE.Vector3(0,0,0.7));markerGroup.add(s)});
+}
+const earthSys=new THREE.Group();ecl.add(earthSys);
+const moonRing=new THREE.Mesh(new THREE.TorusGeometry(RMO,0.022,10,128),silver);earthSys.add(moonRing);
+const eq=new THREE.Group();eq.rotation.x=-EPS;earthSys.add(eq);
+const tex=new THREE.TextureLoader().load(EARTH_TEX);tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;
+const earth=new THREE.Mesh(new THREE.SphereGeometry(RE,96,64),new THREE.MeshStandardMaterial({map:tex,roughness:0.75}));earth.castShadow=earth.receiveShadow=true;
+const spinG=new THREE.Group();eq.add(spinG);earth.rotation.x=Math.PI/2;spinG.add(earth);
+const axis=new THREE.Mesh(new THREE.CylinderGeometry(0.014,0.014,RE*3.2,8),brass);axis.rotation.x=Math.PI/2;eq.add(axis);
+const cap=new THREE.Mesh(new THREE.SphereGeometry(0.045,16,8),brass);cap.position.z=RE*1.6;eq.add(cap);
+let pin;{const la=46.8*Math.PI/180,lo=8.2*Math.PI/180;const n=new THREE.Vector3(Math.cos(la)*Math.cos(lo),Math.sin(la),-Math.cos(la)*Math.sin(lo));
+ pin=new THREE.Group();const needle=new THREE.Mesh(new THREE.CylinderGeometry(0.007,0.007,0.24,6),new THREE.MeshStandardMaterial({color:0xdddddd,metalness:.9,roughness:.2}));needle.position.y=0.12;pin.add(needle);
+ const head=new THREE.Mesh(new THREE.SphereGeometry(0.045,16,8),new THREE.MeshStandardMaterial({color:0xff2020,roughness:.4,emissive:0x600000}));head.position.y=0.24;pin.add(head);
+ pin.position.copy(n.clone().multiplyScalar(RE*0.98));pin.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),n);earth.add(pin)}
+const moon=new THREE.Mesh(new THREE.SphereGeometry(RM,48,24),new THREE.MeshStandardMaterial({color:0xd0d0d4,roughness:0.95}));moon.castShadow=true;earthSys.add(moon);
+// ---------- update ----------
+const PH=[['🌑','Neumond','Der Mond ist fast unsichtbar.'],['🌒','Junge Sichel','Eine dünne Sichel.'],['🌓','Halbmond','Der Mond wird dicker.'],['🌔','Fast Vollmond','Bald ist er rund!'],['🌕','Vollmond','Der Mond ist ganz rund!'],['🌖','Fast Vollmond','Er wird wieder kleiner.'],['🌗','Halbmond','Er wird kleiner.'],['🌘','Alte Sichel','Bald ist Neumond.']];
+let curDoy=2.5,lastMonth=-1,curPhase=PH[0];
+function update(){
+ const nu=nuOfM(Mvis,e);const p=posVis(nu);earthSys.position.copy(p);
+ const L=Math.atan2(p.y,p.x);const d=doyOfNu(nu);curDoy=d;
+ const [dd,m]=doyToMD(d);const se=SE(m);
+ $('datum').textContent=`${dd}. ${MON[m]}`;$('sub').textContent=`${se[0]} ${se[1]}`;
+ if(m!==lastMonth){lastMonth=m;document.querySelectorAll('#months button').forEach((b,i)=>b.classList.toggle('on',i===m))}
+ const rr=AU*(1-E_REAL**2)/(1+E_REAL*Math.cos(nu)),v=29.78*Math.sqrt(2*AU/rr-1);
+ const h=(d%1)*24;$('xdate').textContent=`${dd}. ${MON[m]} ${String(Math.floor(h)).padStart(2,'0')}:${String(Math.floor(h%1*60)).padStart(2,'0')} UTC`;
+ $('dist').textContent=(rr/1e6).toFixed(2).replace('.',',')+' Mio. km';$('vel').textContent=v.toFixed(2).replace('.',',')+' km/s';
+ const elong=mod(2*Math.PI*(d-2.5)/29.5306+Math.PI,2*Math.PI);const ma=L+Math.PI+elong;moon.position.set(RMO*Math.cos(ma),RMO*Math.sin(ma),0);
+ curPhase=PH[Math.floor(mod(elong/(2*Math.PI)*8+0.5,8))];$('moonIcon').textContent=curPhase[0];$('moonName').textContent=curPhase[1];
+ $('illum').textContent=Math.round((1-Math.cos(elong))/2*100)+' %';
+ const frac=($('realspin').checked||spinMode==='real')? d%1 : mod((d-2.5)/YEAR*20,1);
+ const lonSub=-(frac*24-12)*15*Math.PI/180;
+ earthSys.updateMatrixWorld(true);const sl=eq.worldToLocal(sun.getWorldPosition(new THREE.Vector3())).normalize();
+ spinG.rotation.z=Math.atan2(sl.y,sl.x)-lonSub;
+}
+const setDoy=d=>{Mvis=MofNu(nuOfDoy(d),e);update()};
+// ---------- camera: smooth moves, follow earth ----------
+let follow=false,tween=null;const lastEarth=new THREE.Vector3();
+const earthW=()=>earth.getWorldPosition(new THREE.Vector3());
+function moveCam(pos,target,fol){tween={p0:camera.position.clone(),t0:controls.target.clone(),p1:pos,t1:target,k:0,rel:fol};follow=fol;lastEarth.copy(earthW())}
+function camOverview(){monthGroup.visible=true;sunLab.visible=true;const k=Math.max(1,1.25/camera.aspect);moveCam(new THREE.Vector3(0,9*k,7.2*k),new THREE.Vector3(0,0,0),false)}
+function camEarth(dist,sideK,upK,backK){const w=earthW();const dir=w.clone().normalize();const side=new THREE.Vector3(0,1,0).cross(dir).normalize();
+ const off=new THREE.Vector3().addScaledVector(dir,backK*dist).addScaledVector(side,sideK*dist).add(new THREE.Vector3(0,upK*dist,0));
+ monthGroup.visible=false;sunLab.visible=false;tween={p0:camera.position.clone(),t0:controls.target.clone(),off,k:0,rel:true};follow=true;lastEarth.copy(w)}
+// ---------- scenes ----------
+const TXT={
+ start:'Hallo! Ich bin Ella. 🌞 Die Sonne ist in der Mitte. Die Erde fliegt um sie herum. Einmal rundherum dauert ein ganzes Jahr!',
+ tag:'Die Erde dreht sich wie ein Kreisel. ☀️ Wo die Sonne hinscheint, ist Tag. Auf der dunklen Seite ist Nacht. 🌙',
+ jahr:'Die Erde steht ein bisschen schief. Mal zeigt unser Teil zur Sonne: dann ist Sommer ☀️. Mal zeigt er weg: dann ist Winter ❄️.',
+ mond:'Der Mond fliegt um die Erde. Eine Runde dauert etwa einen Monat. Darum sieht er mal rund 🌕 und mal schmal 🌙 aus.',
+ ch:'Siehst du die rote Nadel? 📍 Das ist die Schweiz! Jetzt zeigt sie zur Sonne. Dann ist bei uns Mittag. 🍽️'};
+function say(t,small){$('say').innerHTML=t+(small?`<small>${small}</small>`:'')}
+function setPlay(p){playing=p;$('play').textContent=p?'⏸ Stopp':'▶ Los'}
+const toView=()=>{const r=view.getBoundingClientRect();if(r.top<0||r.bottom>innerHeight)view.scrollIntoView({behavior:'smooth',block:'start'})};
+function scene_(s){toView();document.querySelectorAll('#scenes button').forEach(b=>b.classList.toggle('on',b.dataset.s===s));
+ if(s==='tag'){spinMode='real';daysPerSec=0.35;setPlay(true);camEarth(2.4,0.95,0.3,-0.55);say(TXT.tag,'Eine Drehung = ein Tag.')}
+ else if(s==='jahr'){spinMode='slow';daysPerSec=+$('speed').value;setPlay(true);camOverview();say(TXT.jahr,'Schau auf die schiefe Stange: Sie zeigt immer in die gleiche Richtung.')}
+ else if(s==='mond'){spinMode='slow';daysPerSec=2;setPlay(true);camEarth(2.6,0.2,1.25,-0.45);say(TXT.mond,'Der Mond heute: '+curPhase[0]+' '+curPhase[1]+'.')}
+ else if(s==='ch'){spinMode='real';setPlay(false);setDoy(Math.floor(curDoy)+(12-8.2/15)/24);camEarth(1.9,0.15,0.55,-0.9);say(TXT.ch)}}
+document.querySelectorAll('#scenes button').forEach(b=>b.onclick=()=>scene_(b.dataset.s));
+$('home').onclick=()=>{toView();document.querySelectorAll('#scenes button').forEach(b=>b.classList.remove('on'));spinMode='slow';daysPerSec=+$('speed').value;camOverview();say(TXT.start)};
+$('play').onclick=()=>setPlay(!playing);
+// months
+MS.forEach((n,i)=>{const b=document.createElement('button');b.innerHTML=`<span>${SE(i)[0]}</span>${n}`;b.setAttribute('aria-label',MON[i]);
+ b.onclick=()=>{let d=0;for(let k=0;k<i;k++)d+=ML[k];setDoy(d+14.5);const s=SE(i);say(`Das ist der ${MON[i]}. ${s[0]} Es ist ${s[1]}!`)};$('months').appendChild(b)});
+// birthday
+for(let i=1;i<=31;i++)$('bday').add(new Option(i+'.',i));MON.forEach((n,i)=>$('bmon').add(new Option(n,i)));
+$('bgo').onclick=()=>{const m=+$('bmon').value,dd=Math.min(+$('bday').value,ML[m]);let d=0;for(let k=0;k<m;k++)d+=ML[k];setPlay(false);setDoy(d+dd-0.5);
+ document.querySelectorAll('#scenes button').forEach(b=>b.classList.remove('on'));spinMode='slow';toView();camEarth(3.2,0.9,0.8,-0.7);monthGroup.visible=true;say(`🎉 Hier ist die Erde an deinem Geburtstag, am ${dd}. ${MON[m]}! Jedes Jahr kommt sie wieder genau hierher.`,'Drück auf ▶ Los, dann fliegt sie weiter.')};
+// expert
+const setE=v=>{const d=curDoy;e=v;$('ev').textContent=e.toFixed(4).replace('.',',');buildOrbit();setDoy(d)};
+$('ecc').oninput=ev=>setE(+ev.target.value);
+$('speed').oninput=()=>{$('spv').textContent=$('speed').value;if(spinMode==='slow')daysPerSec=+$('speed').value};$('spv').textContent=$('speed').value;
+$('marks').onchange=ev=>markerGroup.visible=ev.target.checked;
+window.tell={setDoy,scene:scene_,camera,controls,pause:()=>setPlay(false),overview:()=>$('home').click()};
+setE(0.2);setDoy(80);camera.position.set(0,9,7.2);controls.update();say(TXT.start);
+let last=performance.now();
+renderer.setAnimationLoop(now=>{const dt=Math.min(0.1,(now-last)/1000);last=now;
+ if(playing){Mvis+=2*Math.PI*daysPerSec*dt/YEAR;update()}
+ const w=earthW();
+ if(tween){tween.k=Math.min(1,tween.k+dt/1.2);const s=tween.k*tween.k*(3-2*tween.k);
+  const p1=tween.rel?w.clone().add(tween.off):tween.p1,t1=tween.rel?w:tween.t1;
+  camera.position.lerpVectors(tween.p0,p1,s);controls.target.lerpVectors(tween.t0,t1,s);if(tween.k>=1)tween=null}
+ else if(follow){const dl=w.clone().sub(lastEarth);camera.position.add(dl);controls.target.add(dl)}
+ lastEarth.copy(w);controls.update();renderer.render(scene,camera)});
+window.__ready=true;
+</script></body></html>

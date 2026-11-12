@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+
+# Duplicate archives (source and STLs are in the tree)
+*.zip
+
+# Intermediate and backup builds
+*_pre_*.html
+*.pre_*
+*.bak
+webgl/kids/einfach_template.bak
+webgl/kids/einfach_template.pre_*
+
+# Large generated animation frames
+ellipse/frames/
+
+# Local / OS
+.DS_Store
+__pycache__/
+*.pyc

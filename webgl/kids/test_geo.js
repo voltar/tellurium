@@ -1,0 +1,15 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch({args:['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
+const run=async(name,o,init)=>{const ctx=await b.newContext(Object.assign({viewport:{width:1280,height:900}},o));if(init)await ctx.addInitScript(init);const p=await ctx.newPage();const errs=[];
+ p.on('console',m=>{if(['error','warning'].includes(m.type()))errs.push(m.text())});p.on('pageerror',e=>errs.push('pageerror '+e.message));
+ await p.goto('file://'+__dirname+'/tellurium_einfach.html');await p.waitForFunction('window.__ready',null,{timeout:60000});await p.waitForTimeout(1500);
+ const info=await p.evaluate(()=>({cc:document.getElementById('country').value,hint:document.getElementById('geo').textContent,btn:document.getElementById('b_ch').textContent,spv:document.getElementById('spv').textContent,speed:document.getElementById('speed').value}));
+ await p.evaluate(()=>document.querySelector('#country').scrollIntoView({block:'center'}));await p.screenshot({path:`screens_geo/${name}_picker.png`});
+ await p.evaluate(()=>{scrollTo(0,0);tell.scene('ch')});await p.waitForTimeout(2200);await p.screenshot({path:`screens_geo/${name}_pin.png`});
+ console.log(name,JSON.stringify(info),'errors:',errs);await ctx.close()};
+await run('tokyo_de',{timezoneId:'Asia/Tokyo',locale:'de-DE'});
+await run('saopaulo_pt',{timezoneId:'America/Sao_Paulo',locale:'pt-BR',isMobile:true,hasTouch:true,viewport:{width:390,height:844}});
+await run('utc_lang_es-MX',{timezoneId:'UTC',locale:'es-MX'});
+await run('zurich_de',{timezoneId:'Europe/Zurich',locale:'de-CH'});
+await run('saved_FR_wins',{timezoneId:'Asia/Tokyo',locale:'en-US'},()=>localStorage.setItem('tell_cc','FR'));
+await b.close()})();

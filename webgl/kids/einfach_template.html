@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8">
+<meta name="description" content="Schau: die Sonne leuchtet in der Mitte. Die Erde läuft einmal im Jahr herum. Einmal drehen ist ein Tag.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://bamboo-clear-vivid-king.grok.me/">
+<meta property="og:title" content="Voltar Tellurium"><meta property="og:description" content="Schau: die Sonne leuchtet in der Mitte. Die Erde läuft einmal im Jahr herum. Einmal drehen ist ein Tag.">
+<meta property="og:image" content="https://bamboo-clear-vivid-king.grok.me/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Voltar Tellurium"><meta name="twitter:image" content="https://bamboo-clear-vivid-king.grok.me/og.jpg">
+<meta property="x:game:image" content="https://bamboo-clear-vivid-king.grok.me/x-banner.jpg"><meta property="x:game:image:width" content="1200"><meta property="x:game:image:height" content="264">
+<meta property="x:creator" content="@giannizanetti"><title>Die Erde reist um die Sonne</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>
+:root{--bg:#100e0c;--surf:#2c2118;--line:#5a4526;--acc:#e0b15a;--fg:#f6efe4;--mut:#cbb89a}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);font-family:"Source Sans 3","Segoe UI",system-ui,Arial,sans-serif;font-size:19px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+main{max-width:760px;margin:0 auto;padding:14px 14px 40px}
+main>#view{width:100vw;max-width:none;margin-left:calc(50% - 50vw);border-radius:0;border-left:0;border-right:0}
+@media(min-width:700px){main{max-width:none;padding-left:24px;padding-right:24px}#view{height:min(72vh,900px)}}
+h1{font-family:Fraunces,Palatino,"Palatino Linotype",Georgia,serif;font-size:30px;margin:6px 0 10px;font-weight:600}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px}#lang{min-height:44px;border-radius:99px;padding:4px 14px;flex:none}
+.intro{color:var(--mut);margin:0 0 12px}
+.say{min-height:3em;margin:10px 2px 0;font-size:19px}
+.lbl{color:var(--mut);font-size:16px}
+#moonIcon svg{display:block}
+#view{position:relative;height:min(58vh,480px);border:1px solid var(--line);border-radius:20px;overflow:hidden;background:#04050c;touch-action:none}
+#view canvas{display:block;width:100%!important;height:100%!important}
+#hint{position:absolute;top:8px;right:10px;font-size:14px;color:var(--mut);background:rgba(0,0,0,.45);padding:3px 9px;border-radius:99px;pointer-events:none}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:14px 0 6px}
+#datum{font-family:Fraunces,Palatino,Georgia,serif;font-size:30px;font-weight:600}
+#sub{color:var(--mut);font-size:17px}
+button,select{font:inherit;color:var(--fg);background:transparent;border:2px solid var(--line);border-radius:99px;cursor:pointer;min-height:52px;padding:6px 16px}
+button:active{transform:scale(.97)}
+button.on,#play{background:var(--acc);color:#241806;border-color:var(--acc);font-weight:700}
+#play{font-size:22px;min-width:130px}
+#months{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin:8px 0 4px}
+#months button{min-height:50px;padding:2px 0;border-radius:12px;font-size:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-width:2px;line-height:1.15}
+#months button.on{background:var(--acc);color:#241806}
+h2{font-size:20px;margin:18px 0 8px;color:var(--mut);font-weight:600}
+#scenes{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#scenes{margin-top:14px}#scenes button{border-radius:99px;min-height:60px;font-size:19px;font-weight:600}
+#scenes button.on{border-color:var(--acc);background:#3d2d18;color:var(--fg)}
+.card{background:var(--surf);border:1px solid var(--line);border-radius:20px;padding:14px 16px;margin-top:12px}
+.flex{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+#moonName{font-size:24px;font-weight:700}
+select{background:var(--surf);padding:6px 12px;border-radius:14px}
+details{margin-top:18px;border-top:1px solid var(--line);padding-top:8px;font-size:16px;color:var(--mut)}
+summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-size:17px}
+details label{display:block;margin:8px 0}details input[type=range]{width:100%}
+details b{color:var(--fg)}
+.grp{border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin:12px 0}.grp h3{margin:0 0 6px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}.grp .big{font-size:20px;color:var(--fg);margin:2px 0 6px}.ends{display:flex;justify-content:space-between;font-size:13px}.ex{margin:8px 0 0;font-size:15px}.kv{display:grid;grid-template-columns:max-content 1fr;gap:4px 14px}
+details input{accent-color:#e0b35a}
+.speed-card h3{margin:0 0 6px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);font-weight:600}
+.speed-card .big{font-size:20px;color:var(--fg);margin:2px 0 8px;font-weight:600}
+.speed-card input[type=range]{width:100%;height:28px;accent-color:#e0b35a;margin:0}
+.speed-card .ends{margin-top:4px;color:var(--mut)}
+@media(max-width:560px){h1{font-size:25px}#datum{font-size:25px}.say{min-height:3em;margin:10px 2px 0;font-size:19px}
+.lbl{color:var(--mut);font-size:16px}
+#moonIcon svg{display:block}
+#view{height:46vh}
+ #months{grid-template-columns:repeat(6,1fr)}#scenes button{font-size:18px;min-height:56px}}
+
+#fsBtn{position:absolute;inset-inline-end:max(8px,env(safe-area-inset-right));inset-block-end:max(8px,env(safe-area-inset-bottom));z-index:4;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;margin:0;border:none;border-radius:8px;background:rgba(10,9,8,.48);box-shadow:0 1px 6px rgba(0,0,0,.35);color:#f6efe4;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:.72;transition:opacity .45s,background .2s}
+#fsBtn:hover,#fsBtn:focus-visible{opacity:1;background:rgba(10,9,8,.7);outline:none}
+#fsBtn:focus-visible{box-shadow:0 0 0 2px rgba(224,177,90,.7)}
+#fsBtn svg{display:block;width:22px;height:22px}
+#fsBtn .i-col{display:none}
+#fsBtn.is-fs .i-exp{display:none}
+#fsBtn.is-fs .i-col{display:block}
+@media(hover:none) and (pointer:coarse){
+  #fsBtn{opacity:.92}
+  #view:not(.fs-ui-on) #fsBtn{opacity:.32}
+  #view.fs-ui-on #fsBtn{opacity:.92}
+  #fsHud{transition:opacity .45s}
+  #view:not(.fs-ui-on) #fsHud{opacity:.4}
+}
+#fsHud{display:none;position:absolute;left:0;right:0;bottom:0;z-index:3;padding:8px 16px calc(10px + env(safe-area-inset-bottom));padding-inline-end:62px;background:linear-gradient(to top,rgba(8,7,6,.78) 0%,rgba(8,7,6,.42) 62%,transparent 100%);pointer-events:none}
+#fsHud .fs-top{display:flex;align-items:center;justify-content:space-between;gap:12px;pointer-events:auto}
+#fsDatum{font-family:Fraunces,Palatino,Georgia,serif;font-size:22px;font-weight:600;line-height:1.15}
+#fsSub{color:var(--mut);font-size:14px}
+#fsPlay{background:var(--acc);color:#241806;border-color:var(--acc);font-weight:700;font-size:17px;min-height:44px;min-width:108px;padding:4px 14px;flex:none}
+#fsHud .fs-speed{pointer-events:auto;margin-top:6px;max-width:min(480px,calc(100% - 4px))}
+#fsHud .fs-speed .h{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);font-weight:600}
+#fsSpv{font-size:15px;color:var(--fg);margin:1px 0 2px;font-weight:600}
+#fsSpeed{width:100%;height:28px;accent-color:#e0b35a;margin:0}
+#view:fullscreen #fsHud,#view:-webkit-full-screen #fsHud,#view.pseudo-fs #fsHud{display:block}
+#view:fullscreen,#view:-webkit-full-screen,#view.pseudo-fs,
+main>#view:fullscreen,main>#view:-webkit-full-screen,main>#view.pseudo-fs{
+  width:100%;height:100%;max-width:none;max-height:none;margin:0;border:0;border-radius:0;background:#04050c
+}
+#view.pseudo-fs,main>#view.pseudo-fs{position:fixed;inset:0;width:100vw;width:100dvw;height:100vh;height:100dvh;z-index:9999}
+html.fs-pseudo,html.fs-pseudo body{overflow:hidden;height:100%;overscroll-behavior:none}
+#view:fullscreen::backdrop{background:#04050c}
+
+.speed-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 0 6px}
+.speed-head h3{margin:0}
+#spx,#fsSpx{color:var(--mut);font-size:14px;font-weight:600;letter-spacing:.01em;text-align:end;max-width:70%;line-height:1.25}
+#btoday{min-height:44px;padding:4px 14px;font-size:16px;font-weight:600}
+#fsHud .h-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+</style>
+<script type="importmap">{"imports":{"three":"__THREE__","three/addons/":"__ADDONS__"}}</script>
+</head><body><main>
+<div class="top"><h1 id="title"></h1><select id="lang" aria-label="Language"></select></div>
+<p class="intro" id="intro"></p>
+<div id="view"><div id="hint"></div>
+<button type="button" id="fsBtn" aria-pressed="false">
+<svg class="i-exp" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="square" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>
+<svg class="i-col" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="square" aria-hidden="true"><path d="M3 8h5V3M21 8h-5V3M3 16h5v5M21 16h-5v5"/></svg>
+</button>
+<div id="fsHud">
+<div class="fs-top"><div><div id="fsDatum"></div><div id="fsSub"></div></div><button type="button" id="fsPlay">Pause</button></div>
+<div class="fs-speed"><div class="h-row"><div class="h" id="l_fs_speed"></div><span id="fsSpx"></span></div><div id="fsSpv"></div><input id="fsSpeed" type="range" min="0" max="11" step="1" value="7"></div>
+</div></div>
+<p id="say" class="say"></p>
+<div class="row"><div><div id="datum"></div><div id="sub"></div></div><button id="play">Pause</button></div>
+<div class="card speed-card"><div class="speed-head"><h3 id="l_s_speed"></h3><span id="spx"></span></div><div class="big" id="spv"></div><input id="speed" type="range" min="0" max="11" step="1" value="7" aria-labelledby="l_s_speed"><div class="ends"><span id="l_slow"></span><span id="l_fast"></span></div></div>
+<div id="months"></div>
+<div id="scenes">
+<button data-s="tag" id="b_tag"></button>
+<button data-s="jahr" id="b_jahr"></button>
+<button data-s="mond" id="b_mond"></button>
+<button data-s="ch" id="b_ch"></button>
+</div>
+<div class="card flex"><div id="moonIcon"></div><div><div class="lbl" id="l_phase"></div><div id="moonName"></div></div></div>
+<div class="card"><div class="lbl" style="margin-bottom:8px" id="l_pick"></div>
+<div class="flex"><select id="bday" aria-label="Tag"></select><select id="bmon" aria-label="Monat"></select><button type="button" id="btoday"></button><button id="bgo" class="on"></button></div></div>
+<div class="card"><label class="lbl" for="country" id="l_country" style="display:block;margin-bottom:8px"></label><select id="country" style="width:100%"></select><div id="geo" class="lbl" style="font-size:14px;margin-top:6px"></div></div>
+<button id="home" style="margin-top:12px;width:100%"></button>
+<details id="gross"><summary id="l_details"></summary>
+<section class="grp"><h3 id="l_s_orbit"></h3><label><input type="checkbox" id="ecc"> <span id="ev"></span></label><p class="ex" id="ecc_ex"></p></section>
+<section class="grp"><h3 id="l_s_show"></h3><label><input type="checkbox" id="marks"> <span id="l_marks"></span></label></section>
+<section class="grp"><h3 id="l_s_data"></h3><div class="kv"><b id="l_xdate"></b><span id="xdate"></span><b id="l_dist"></b><span id="dist"></span><b id="l_vel"></b><span id="vel"></span><b id="l_illum"></b><span id="illum"></span></div></section>
+<section class="grp"><h3 id="l_s_bg"></h3><p id="phys"></p></section>
+</details>
+<p style="font-size:11px;opacity:.5;margin-top:24px">Sun texture: <a href="https://www.solarsystemscope.com/textures/" style="color:inherit">Solar System Scope</a>, CC BY 4.0 (modified)</p></main>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+const EARTH_TEX='__EARTH__';
+const EPS=23.44*Math.PI/180, LP=102.9*Math.PI/180, E_REAL=0.0167, A=4.3, AU=1.496e8;
+const RS=0.75,RE=0.42,RM=0.13,RMO=0.85, YEAR=365.25;
+const CC={AD:[42.5,1.5],AE:[24,54],AF:[33,65],AG:[17.1,-61.8],AL:[41,20],AM:[40,45],AO:[-12.5,18.5],AR:[-34,-64],AT:[47.3,13.3],AU:[-25,135],AZ:[40.5,47.5],BA:[44,18],BB:[13.2,-59.5],BD:[24,90],BE:[50.8,4],BF:[13,-2],BG:[43,25],BH:[26,50.5],BI:[-3.5,30],BJ:[9.5,2.3],BN:[4.5,114.7],BO:[-17,-65],BR:[-10,-55],BS:[24,-76],BT:[27.5,90.5],BW:[-22,24],BY:[53,28],BZ:[17.2,-88.7],CA:[60,-95],CD:[-2.5,23.5],CF:[7,21],CG:[-1,15],CH:[46.8,8.2],CI:[8,-5],CL:[-30,-71],CM:[6,12],CN:[35,105],CO:[4,-72],CR:[10,-84],CU:[21.5,-80],CV:[16,-24],CY:[35,33],CZ:[49.75,15.5],DE:[51,10],DJ:[11.5,43],DK:[56,10],DM:[15.4,-61.3],DO:[19,-70.7],DZ:[28,3],EC:[-2,-77.5],EE:[59,26],EG:[27,30],ER:[15,39],ES:[40,-4],ET:[8,38],FI:[64,26],FJ:[-18,178],FM:[6.9,158.2],FR:[46,2],GA:[-1,11.75],GB:[54,-2],GD:[12.1,-61.7],GE:[42,43.5],GH:[8,-2],GL:[72,-40],GM:[13.5,-15.5],GN:[11,-10],GQ:[2,10],GR:[39,22],GT:[15.5,-90.25],GW:[12,-15],GY:[5,-59],HN:[15,-86.5],HR:[45.2,15.5],HT:[19,-72.4],HU:[47,20],ID:[-2,118],IE:[53,-8],IL:[31.5,34.75],IN:[22,79],IQ:[33,44],IR:[32,53],IS:[65,-18],IT:[42.8,12.8],JM:[18.25,-77.5],JO:[31,36],JP:[36,138],KE:[1,38],KG:[41,75],KH:[13,105],KI:[1.4,173],KM:[-12.2,44.2],KN:[17.3,-62.7],KP:[40,127],KR:[37,127.5],KW:[29.5,47.75],KZ:[48,68],LA:[18,105],LB:[33.8,35.8],LC:[13.9,-61],LI:[47.2,9.5],LK:[7,81],LR:[6.5,-9.5],LS:[-29.5,28.5],LT:[56,24],LU:[49.75,6.2],LV:[57,25],LY:[25,17],MA:[32,-5],MC:[43.7,7.4],MD:[47,29],ME:[42.5,19.3],MG:[-20,47],MH:[9,168],MK:[41.8,22],ML:[17,-4],MM:[22,98],MN:[46,105],MR:[20,-12],MT:[35.9,14.4],MU:[-20.3,57.6],MV:[3.2,73],MW:[-13.5,34],MX:[23,-102],MY:[2.5,112.5],MZ:[-18.25,35],NA:[-22,17],NE:[16,8],NG:[10,8],NI:[13,-85],NL:[52.5,5.75],NO:[62,10],NP:[28,84],NR:[-0.5,166.9],NZ:[-41,174],OM:[21,57],PA:[9,-80],PE:[-10,-76],PG:[-6,147],PH:[13,122],PK:[30,70],PL:[52,20],PS:[32,35.2],PT:[39.5,-8],PW:[7.5,134.5],PY:[-23,-58],QA:[25.5,51.25],RO:[46,25],RS:[44,21],RU:[60,100],RW:[-2,30],SA:[25,45],SB:[-8,159],SC:[-4.6,55.7],SD:[15,30],SE:[62,15],SG:[1.4,103.8],SI:[46.1,14.8],SK:[48.7,19.5],SL:[8.5,-11.5],SM:[43.9,12.4],SN:[14,-14],SO:[6,48],SR:[4,-56],SS:[7,30],ST:[0.2,6.6],SV:[13.8,-88.9],SY:[35,38],SZ:[-26.5,31.5],TD:[15,19],TG:[8,1.2],TH:[15,100],TJ:[39,71],TL:[-8.8,125.9],TM:[40,60],TN:[34,9],TO:[-20,-175],TR:[39,35],TT:[11,-61],TV:[-8,178],TW:[23.5,121],TZ:[-6,35],UA:[49,32],UG:[1,32],US:[38,-97],UY:[-33,-56],UZ:[41,64],VA:[41.9,12.45],VC:[13.25,-61.2],VE:[8,-66],VN:[16,106],VU:[-16,167],WS:[-13.6,-172.3],XK:[42.6,20.9],YE:[15,48],ZA:[-29,24],ZM:[-15,30],ZW:[-20,30],HK:[22.3,114.2],PR:[18.2,-66.5]};
+const L={
+de:{g_tz:'Automatisch erkannt (Zeitzone)',g_lang:'Automatisch erkannt (Spracheinstellung)',n:'Deutsch',title:'Die Erde und die Sonne',intro:'Die Sonne steht in der Mitte. Die Erde kreist in einem Jahr einmal um sie. Der Mond kreist um die Erde.',hint:'Ziehen: drehen · Mausrad oder zwei Finger: zoomen',play:'Abspielen',pause:'Pause',tag:'Tag und Nacht',jahr:'Jahreszeiten',mond:'Mond',phase:'Mondphase',pick:'Datum wählen',show:'Anzeigen',over:'Übersicht',country:'Land',details:'Details',sun:'Sonne',
+seasons:['Winter','Frühling','Sommer','Herbst'],phases:['Neumond','Zunehmende Sichel','Erstes Viertel','Zunehmender Mond','Vollmond','Abnehmender Mond','Letztes Viertel','Abnehmende Sichel'],
+t_start:'Die Erde braucht ein Jahr für eine Runde um die Sonne. Die Bahn ist eine leicht gestreckte Ellipse.',t_tag:'Die Erde dreht sich in 24 Stunden einmal um sich selbst. Die Seite zur Sonne hat Tag, die andere Seite hat Nacht.',t_jahr:'Die Erdachse ist schräg und zeigt immer in dieselbe Richtung. Ist die Nordhalbkugel zur Sonne geneigt, ist dort Sommer und im Süden Winter.',t_mond:'Der Mond umkreist die Erde in etwa einem Monat. Je nach Stellung sehen wir mehr oder weniger von seiner beleuchteten Seite.',t_ch:'Die rote Nadel markiert dieses Land: {c}. Zeigt sie zur Sonne, ist dort Mittag.',t_month:'{m}: {s} ({c}).',t_date:'Stellung der Erde am {d}.',
+phys:'Physik im Hintergrund: Die Erdbahn ist eine Ellipse, die Sonne steht in einem Brennpunkt. Anfang Januar ist die Erde der Sonne am nächsten (Perihel, ~3. Jan.), Anfang Juli am weitesten entfernt (Aphel, ~4. Juli). Erdachse 23,44° raumfest, roter Pin = {c}, Mondphasen aus 29,53 Tagen. Grössen/Abstände nicht massstäblich. Jahreszeiten nach Monaten (meteorologisch).',xdate:'Datum/Zeit',dist:'Abstand Sonne',vel:'Bahngeschwindigkeit',illum:'Mond beleuchtet',ecc:'Exzentrizität im Bild',speed:'Tempo',dps:'Tage/s',marks:'Der Sonne am nächsten und am weitesten, Sonnenwenden, Vergleichskreis',mkm:'Mio. km',mk:['Der Sonne am nächsten','Der Sonne am weitesten','Wintersonnenwende','Sommersonnenwende']},
+en:{g_tz:'Detected automatically (time zone)',g_lang:'Detected automatically (language setting)',n:'English',title:'The Earth and the Sun',intro:'The Sun is in the middle. The Earth goes around it once a year. The Moon goes around the Earth.',hint:'Drag: rotate · Scroll or two fingers: zoom',play:'Play',pause:'Pause',tag:'Day and night',jahr:'Seasons',mond:'Moon',phase:'Moon phase',pick:'Choose a date',show:'Show',over:'Overview',country:'Country',details:'Details',sun:'Sun',
+seasons:['Winter','Spring','Summer','Autumn'],phases:['New moon','Waxing crescent','First quarter','Waxing gibbous','Full moon','Waning gibbous','Last quarter','Waning crescent'],
+t_start:'The Earth needs one year to go once around the Sun. Its path is a slightly stretched ellipse.',t_tag:'The Earth turns once around itself in 24 hours. The side facing the Sun has day, the other side has night.',t_jahr:'The Earth\'s axis is tilted and always points the same way. When the northern half leans toward the Sun, it is summer there and winter in the south.',t_mond:'The Moon goes around the Earth in about a month. Depending on its position, we see more or less of its lit side.',t_ch:'The red pin marks this country: {c}. When it faces the Sun, it is noon there.',t_month:'{m}: {s} ({c}).',t_date:'Position of the Earth on {d}.',
+phys:'Physics underneath: the Earth\'s path is an ellipse, with the Sun at one focus. In early January the Earth is closest to the Sun (perihelion, ~3 Jan), and in early July it is farthest (aphelion, ~4 July). Earth\'s axis 23.44° fixed in space, red pin = {c}, Moon phases from 29.53 days. Sizes/distances not to scale. Seasons by month (meteorological).',xdate:'Date/time',dist:'Distance to Sun',vel:'Orbital speed',illum:'Moon lit',ecc:'Eccentricity shown',speed:'Speed',dps:'days/s',marks:'Closest to and farthest from the Sun, solstices, comparison circle',mkm:'million km',mk:['Closest to the Sun','Farthest from the Sun','Winter solstice','Summer solstice']},
+fr:{g_tz:'Détecté automatiquement (fuseau horaire)',g_lang:'Détecté automatiquement (langue)',n:'Français',title:'La Terre et le Soleil',intro:'Le Soleil est au centre. La Terre tourne autour de lui en un an. La Lune tourne autour de la Terre.',hint:'Glisser : tourner · Molette ou deux doigts : zoomer',play:'Lecture',pause:'Pause',tag:'Jour et nuit',jahr:'Saisons',mond:'Lune',phase:'Phase de la Lune',pick:'Choisir une date',show:'Afficher',over:'Vue d\'ensemble',country:'Pays',details:'Détails',sun:'Soleil',
+seasons:['Hiver','Printemps','Été','Automne'],phases:['Nouvelle lune','Premier croissant','Premier quartier','Lune gibbeuse croissante','Pleine lune','Lune gibbeuse décroissante','Dernier quartier','Dernier croissant'],
+t_start:'La Terre met un an pour faire le tour du Soleil. Son orbite est une ellipse légèrement allongée.',t_tag:'La Terre fait un tour sur elle-même en 24 heures. Le côté tourné vers le Soleil a le jour, l\'autre côté la nuit.',t_jahr:'L\'axe de la Terre est incliné et pointe toujours dans la même direction. Quand l\'hémisphère nord penche vers le Soleil, c\'est l\'été au nord et l\'hiver au sud.',t_mond:'La Lune fait le tour de la Terre en un mois environ. Selon sa position, on voit plus ou moins sa face éclairée.',t_ch:'L\'épingle rouge marque : {c}. Quand elle fait face au Soleil, il est midi là-bas.',t_month:'{m} : {s} – {c}.',t_date:'Position de la Terre le {d}.',
+phys:'Physique : l\'orbite terrestre est une ellipse, le Soleil est à un foyer. Début janvier, la Terre est au plus près du Soleil (périhélie, ~3 janv.), début juillet au plus loin (aphélie, ~4 juil.). Axe terrestre 23,44° fixe, épingle rouge = {c}, phases lunaires sur 29,53 jours. Tailles/distances pas à l\'échelle. Saisons par mois (météorologiques).',xdate:'Date/heure',dist:'Distance au Soleil',vel:'Vitesse orbitale',illum:'Lune éclairée',ecc:'Excentricité affichée',speed:'Vitesse',dps:'jours/s',marks:'Au plus près et au plus loin du Soleil, solstices, cercle de comparaison',mkm:'millions de km',mk:['Au plus près du Soleil','Au plus loin du Soleil','Solstice d\'hiver','Solstice d\'été']},
+it:{g_tz:'Rilevato automaticamente (fuso orario)',g_lang:'Rilevato automaticamente (lingua)',n:'Italiano',title:'La Terra e il Sole',intro:'Il Sole è al centro. La Terra gli gira intorno una volta all\'anno. La Luna gira intorno alla Terra.',hint:'Trascina: ruota · Rotella o due dita: zoom',play:'Avvia',pause:'Pausa',tag:'Giorno e notte',jahr:'Stagioni',mond:'Luna',phase:'Fase lunare',pick:'Scegli una data',show:'Mostra',over:'Panoramica',country:'Paese',details:'Dettagli',sun:'Sole',
+seasons:['Inverno','Primavera','Estate','Autunno'],phases:['Luna nuova','Falce crescente','Primo quarto','Gibbosa crescente','Luna piena','Gibbosa calante','Ultimo quarto','Falce calante'],
+t_start:'La Terra impiega un anno per fare un giro intorno al Sole. L\'orbita è un\'ellisse leggermente allungata.',t_tag:'La Terra ruota su se stessa una volta in 24 ore. Il lato verso il Sole ha il giorno, l\'altro la notte.',t_jahr:'L\'asse terrestre è inclinato e punta sempre nella stessa direzione. Quando l\'emisfero nord è inclinato verso il Sole, lì è estate e al sud è inverno.',t_mond:'La Luna gira intorno alla Terra in circa un mese. A seconda della posizione vediamo più o meno la sua parte illuminata.',t_ch:'Lo spillo rosso indica: {c}. Quando è rivolto al Sole, lì è mezzogiorno.',t_month:'{m}: {s} – {c}.',t_date:'Posizione della Terra il {d}.',
+phys:'Fisica: l\'orbita terrestre è un\'ellisse, il Sole sta in un fuoco. A inizio gennaio la Terra è più vicina al Sole (perielio, ~3 gen), a inizio luglio è più lontana (afelio, ~4 lug). Asse terrestre 23,44° fisso, spillo rosso = {c}, fasi lunari su 29,53 giorni. Dimensioni/distanze non in scala. Stagioni per mese (meteorologiche).',xdate:'Data/ora',dist:'Distanza dal Sole',vel:'Velocità orbitale',illum:'Luna illuminata',ecc:'Eccentricità mostrata',speed:'Velocità',dps:'giorni/s',marks:'Più vicina e più lontana dal Sole, solstizi, cerchio di confronto',mkm:'milioni di km',mk:['Più vicina al Sole','Più lontana dal Sole','Solstizio d\'inverno','Solstizio d\'estate']},
+es:{g_tz:'Detectado automáticamente (zona horaria)',g_lang:'Detectado automáticamente (idioma)',n:'Español',title:'La Tierra y el Sol',intro:'El Sol está en el centro. La Tierra gira a su alrededor una vez al año. La Luna gira alrededor de la Tierra.',hint:'Arrastrar: girar · Rueda o dos dedos: zoom',play:'Reproducir',pause:'Pausa',tag:'Día y noche',jahr:'Estaciones',mond:'Luna',phase:'Fase lunar',pick:'Elegir fecha',show:'Mostrar',over:'Vista general',country:'País',details:'Detalles',sun:'Sol',
+seasons:['Invierno','Primavera','Verano','Otoño'],phases:['Luna nueva','Creciente','Cuarto creciente','Gibosa creciente','Luna llena','Gibosa menguante','Cuarto menguante','Menguante'],
+t_start:'La Tierra tarda un año en dar una vuelta al Sol. Su órbita es una elipse un poco alargada.',t_tag:'La Tierra gira sobre sí misma una vez cada 24 horas. El lado hacia el Sol tiene día, el otro tiene noche.',t_jahr:'El eje de la Tierra está inclinado y apunta siempre en la misma dirección. Cuando el hemisferio norte se inclina hacia el Sol, allí es verano y en el sur es invierno.',t_mond:'La Luna da la vuelta a la Tierra en un mes aproximadamente. Según su posición vemos más o menos de su lado iluminado.',t_ch:'La aguja roja marca: {c}. Cuando mira al Sol, allí es mediodía.',t_month:'{m}: {s} – {c}.',t_date:'Posición de la Tierra el {d}.',
+phys:'Física: la órbita terrestre es una elipse, el Sol está en un foco. A principios de enero la Tierra está más cerca del Sol (perihelio, ~3 ene), y a principios de julio más lejos (afelio, ~4 jul). Eje terrestre 23,44° fijo, aguja roja = {c}, fases lunares de 29,53 días. Tamaños/distancias no a escala. Estaciones por meses (meteorológicas).',xdate:'Fecha/hora',dist:'Distancia al Sol',vel:'Velocidad orbital',illum:'Luna iluminada',ecc:'Excentricidad mostrada',speed:'Velocidad',dps:'días/s',marks:'Más cerca y más lejos del Sol, solsticios, círculo de comparación',mkm:'millones de km',mk:['Más cerca del Sol','Más lejos del Sol','Solsticio de invierno','Solsticio de verano']},
+pt:{g_tz:'Detectado automaticamente (fuso horário)',g_lang:'Detectado automaticamente (idioma)',n:'Português',title:'A Terra e o Sol',intro:'O Sol está no centro. A Terra dá uma volta em torno dele por ano. A Lua gira em torno da Terra.',hint:'Arrastar: girar · Roda ou dois dedos: zoom',play:'Reproduzir',pause:'Pausa',tag:'Dia e noite',jahr:'Estações',mond:'Lua',phase:'Fase da Lua',pick:'Escolher data',show:'Mostrar',over:'Visão geral',country:'País',details:'Detalhes',sun:'Sol',
+seasons:['Inverno','Primavera','Verão','Outono'],phases:['Lua nova','Crescente','Quarto crescente','Gibosa crescente','Lua cheia','Gibosa minguante','Quarto minguante','Minguante'],
+t_start:'A Terra leva um ano para dar uma volta ao Sol. A órbita é uma elipse levemente alongada.',t_tag:'A Terra gira sobre si mesma uma vez em 24 horas. O lado voltado para o Sol tem dia, o outro tem noite.',t_jahr:'O eixo da Terra é inclinado e aponta sempre na mesma direção. Quando o hemisfério norte se inclina para o Sol, lá é verão e no sul é inverno.',t_mond:'A Lua dá a volta à Terra em cerca de um mês. Conforme a posição, vemos mais ou menos do seu lado iluminado.',t_ch:'O alfinete vermelho marca: {c}. Quando aponta para o Sol, lá é meio-dia.',t_month:'{m}: {s} – {c}.',t_date:'Posição da Terra em {d}.',
+phys:'Física: a órbita da Terra é uma elipse, o Sol está num foco. No início de janeiro a Terra está mais perto do Sol (periélio, ~3 jan), e no início de julho mais longe (afélio, ~4 jul). Eixo terrestre 23,44° fixo, alfinete vermelho = {c}, fases da Lua de 29,53 dias. Tamanhos/distâncias fora de escala. Estações por mês (meteorológicas).',xdate:'Data/hora',dist:'Distância ao Sol',vel:'Velocidade orbital',illum:'Lua iluminada',ecc:'Excentricidade exibida',speed:'Velocidade',dps:'dias/s',marks:'Mais perto e mais longe do Sol, solstícios, círculo de comparação',mkm:'milhões de km',mk:['Mais perto do Sol','Mais longe do Sol','Solstício de inverno','Solstício de verão']},
+zh:{g_tz:'已自动识别（时区）',g_lang:'已自动识别（语言设置）',n:'中文',title:'地球与太阳',intro:'太阳在中间。地球每年绕太阳转一圈。月亮绕着地球转。',hint:'拖动：旋转 · 滚轮或双指：缩放',play:'播放',pause:'暂停',tag:'白天与黑夜',jahr:'四季',mond:'月亮',phase:'月相',pick:'选择日期',show:'显示',over:'总览',country:'国家',details:'详情',sun:'太阳',
+seasons:['冬季','春季','夏季','秋季'],phases:['新月','娥眉月','上弦月','盈凸月','满月','亏凸月','下弦月','残月'],
+t_start:'地球绕太阳一圈需要一年。它的轨道是一个略微拉长的椭圆。',t_tag:'地球每24小时自转一圈。朝向太阳的一面是白天，另一面是黑夜。',t_jahr:'地轴是倾斜的，而且始终指向同一个方向。北半球倾向太阳时，北方是夏季，南方是冬季。',t_mond:'月亮大约一个月绕地球一圈。随着位置变化，我们看到它被照亮的部分有多有少。',t_ch:'红色大头针标记的是{c}。它朝向太阳时，那里是中午。',t_month:'{m}：{c}是{s}。',t_date:'{d}时地球的位置。',
+phys:'物理原理：地球轨道是椭圆，太阳位于一个焦点。一月初地球离太阳最近（近日点，约1月3日），七月初离太阳最远（远日点，约7月4日）。地轴倾角23.44°且方向固定，红色大头针 = {c}，月相周期29.53天。大小和距离未按比例。季节按月份划分（气象季节）。',xdate:'日期/时间',dist:'日地距离',vel:'公转速度',illum:'月亮被照亮',ecc:'显示的偏心率',speed:'速度',dps:'天/秒',marks:'离太阳最近和最远的位置、至日、对比圆',mkm:'百万公里',mk:['离太阳最近','离太阳最远','冬至','夏至']},
+ar:{g_tz:'تم التعرّف تلقائيًا (المنطقة الزمنية)',g_lang:'تم التعرّف تلقائيًا (إعدادات اللغة)',n:'العربية',title:'الأرض والشمس',intro:'الشمس في الوسط. تدور الأرض حولها مرة كل سنة. ويدور القمر حول الأرض.',hint:'اسحب: تدوير · العجلة أو إصبعان: تكبير',play:'تشغيل',pause:'إيقاف مؤقت',tag:'الليل والنهار',jahr:'الفصول',mond:'القمر',phase:'طور القمر',pick:'اختر تاريخًا',show:'عرض',over:'نظرة عامة',country:'البلد',details:'تفاصيل',sun:'الشمس',
+seasons:['الشتاء','الربيع','الصيف','الخريف'],phases:['محاق','هلال متزايد','تربيع أول','أحدب متزايد','بدر','أحدب متناقص','تربيع أخير','هلال متناقص'],
+t_start:'تحتاج الأرض إلى سنة لتدور مرة حول الشمس. مدارها قطع ناقص ممدود قليلًا.',t_tag:'تدور الأرض حول نفسها مرة كل 24 ساعة. الجهة المقابلة للشمس فيها نهار، والجهة الأخرى فيها ليل.',t_jahr:'محور الأرض مائل ويشير دائمًا إلى الاتجاه نفسه. عندما يميل نصف الكرة الشمالي نحو الشمس يكون الصيف هناك والشتاء في الجنوب.',t_mond:'يدور القمر حول الأرض في نحو شهر. وحسب موقعه نرى جزءًا أكبر أو أصغر من جانبه المضيء.',t_ch:'الدبوس الأحمر يحدد: {c}. عندما يواجه الشمس يكون الوقت ظهرًا هناك.',t_month:'{m}: {s} في {c}.',t_date:'موقع الأرض في {d}.',
+phys:'الفيزياء: مدار الأرض قطع ناقص، والشمس في إحدى البؤرتين. في أوائل يناير تكون الأرض أقرب إلى الشمس (الحضيض، ~3 يناير)، وفي أوائل يوليو تكون أبعد (الأوج، ~4 يوليو). محور الأرض 23.44° ثابت الاتجاه، الدبوس الأحمر = {c}، أطوار القمر كل 29.53 يومًا. الأحجام والمسافات ليست بمقياس حقيقي. الفصول حسب الأشهر.',xdate:'التاريخ/الوقت',dist:'المسافة إلى الشمس',vel:'السرعة المدارية',illum:'إضاءة القمر',ecc:'الاختلاف المركزي المعروض',speed:'السرعة',dps:'يوم/ث',marks:'الأقرب والأبعد عن الشمس، الانقلابان، دائرة للمقارنة',mkm:'مليون كم',mk:['الأقرب إلى الشمس','الأبعد عن الشمس','الانقلاب الشتوي','الانقلاب الصيفي']}};
+
+const LS=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(_){}};
+let lang=LS('tell_lang')||(()=>{const b=(navigator.language||'de').slice(0,2);return L[b]?b:'en'})();if(!L[lang])lang='de';
+const TZC={'Europe/Zurich':'CH','Europe/Vaduz':'LI','Europe/Berlin':'DE','Europe/Busingen':'DE','Europe/Vienna':'AT','Europe/Paris':'FR','Europe/Rome':'IT','Europe/Madrid':'ES','Atlantic/Canary':'ES','Europe/Lisbon':'PT','Europe/London':'GB','Europe/Dublin':'IE','Europe/Amsterdam':'NL','Europe/Brussels':'BE','Europe/Luxembourg':'LU','Europe/Monaco':'MC','Europe/Copenhagen':'DK','Europe/Oslo':'NO','Europe/Stockholm':'SE','Europe/Helsinki':'FI','Atlantic/Reykjavik':'IS','Europe/Warsaw':'PL','Europe/Prague':'CZ','Europe/Bratislava':'SK','Europe/Budapest':'HU','Europe/Ljubljana':'SI','Europe/Zagreb':'HR','Europe/Belgrade':'RS','Europe/Sarajevo':'BA','Europe/Podgorica':'ME','Europe/Skopje':'MK','Europe/Tirane':'AL','Europe/Athens':'GR','Europe/Sofia':'BG','Europe/Bucharest':'RO','Europe/Chisinau':'MD','Europe/Kyiv':'UA','Europe/Kiev':'UA','Europe/Minsk':'BY','Europe/Vilnius':'LT','Europe/Riga':'LV','Europe/Tallinn':'EE','Europe/Moscow':'RU','Europe/Istanbul':'TR','Europe/Malta':'MT','Asia/Nicosia':'CY','Europe/Andorra':'AD','Europe/San_Marino':'SM','Europe/Vatican':'VA',
+'America/New_York':'US','America/Chicago':'US','America/Denver':'US','America/Phoenix':'US','America/Los_Angeles':'US','America/Anchorage':'US','Pacific/Honolulu':'US','America/Detroit':'US','America/Toronto':'CA','America/Vancouver':'CA','America/Edmonton':'CA','America/Winnipeg':'CA','America/Halifax':'CA','America/St_Johns':'CA','America/Mexico_City':'MX','America/Cancun':'MX','America/Tijuana':'MX','America/Guatemala':'GT','America/El_Salvador':'SV','America/Tegucigalpa':'HN','America/Managua':'NI','America/Costa_Rica':'CR','America/Panama':'PA','America/Havana':'CU','America/Jamaica':'JM','America/Santo_Domingo':'DO','America/Port-au-Prince':'HT','America/Puerto_Rico':'PR','America/Bogota':'CO','America/Caracas':'VE','America/Lima':'PE','America/Guayaquil':'EC','America/La_Paz':'BO','America/Santiago':'CL','America/Argentina/Buenos_Aires':'AR','America/Buenos_Aires':'AR','America/Montevideo':'UY','America/Asuncion':'PY','America/Sao_Paulo':'BR','America/Manaus':'BR','America/Recife':'BR','America/Fortaleza':'BR','America/Bahia':'BR',
+'Asia/Tokyo':'JP','Asia/Seoul':'KR','Asia/Pyongyang':'KP','Asia/Shanghai':'CN','Asia/Urumqi':'CN','Asia/Hong_Kong':'HK','Asia/Taipei':'TW','Asia/Manila':'PH','Asia/Singapore':'SG','Asia/Kuala_Lumpur':'MY','Asia/Jakarta':'ID','Asia/Makassar':'ID','Asia/Bangkok':'TH','Asia/Ho_Chi_Minh':'VN','Asia/Saigon':'VN','Asia/Phnom_Penh':'KH','Asia/Vientiane':'LA','Asia/Yangon':'MM','Asia/Dhaka':'BD','Asia/Kolkata':'IN','Asia/Calcutta':'IN','Asia/Kathmandu':'NP','Asia/Colombo':'LK','Asia/Karachi':'PK','Asia/Kabul':'AF','Asia/Tehran':'IR','Asia/Baghdad':'IQ','Asia/Riyadh':'SA','Asia/Dubai':'AE','Asia/Qatar':'QA','Asia/Bahrain':'BH','Asia/Kuwait':'KW','Asia/Muscat':'OM','Asia/Aden':'YE','Asia/Amman':'JO','Asia/Beirut':'LB','Asia/Damascus':'SY','Asia/Jerusalem':'IL','Asia/Tel_Aviv':'IL','Asia/Gaza':'PS','Asia/Tbilisi':'GE','Asia/Yerevan':'AM','Asia/Baku':'AZ','Asia/Almaty':'KZ','Asia/Tashkent':'UZ','Asia/Bishkek':'KG','Asia/Dushanbe':'TJ','Asia/Ashgabat':'TM','Asia/Ulaanbaatar':'MN','Asia/Novosibirsk':'RU','Asia/Yekaterinburg':'RU','Asia/Vladivostok':'RU',
+'Africa/Cairo':'EG','Africa/Casablanca':'MA','Africa/Algiers':'DZ','Africa/Tunis':'TN','Africa/Tripoli':'LY','Africa/Lagos':'NG','Africa/Accra':'GH','Africa/Abidjan':'CI','Africa/Dakar':'SN','Africa/Nairobi':'KE','Africa/Addis_Ababa':'ET','Africa/Kampala':'UG','Africa/Dar_es_Salaam':'TZ','Africa/Kigali':'RW','Africa/Kinshasa':'CD','Africa/Luanda':'AO','Africa/Johannesburg':'ZA','Africa/Windhoek':'NA','Africa/Harare':'ZW','Africa/Lusaka':'ZM','Africa/Maputo':'MZ','Indian/Antananarivo':'MG','Indian/Mauritius':'MU','Africa/Khartoum':'SD',
+'Australia/Sydney':'AU','Australia/Melbourne':'AU','Australia/Brisbane':'AU','Australia/Perth':'AU','Australia/Adelaide':'AU','Australia/Darwin':'AU','Australia/Hobart':'AU','Pacific/Auckland':'NZ','Pacific/Fiji':'FJ','Pacific/Port_Moresby':'PG'};
+function detectCC(){try{const z=Intl.DateTimeFormat().resolvedOptions().timeZone;if(TZC[z]&&CC[TZC[z]])return [TZC[z],'tz']}catch(_){}
+ for(const l of (navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||''])){const m=/[-_]([A-Za-z]{2})\b/.exec(l);if(m&&CC[m[1].toUpperCase()])return [m[1].toUpperCase(),'lang']}
+ return ['CH','default']}
+let ccSaved=LS('tell_cc'),ccSrc='user',cc=ccSaved;if(!CC[cc]){[cc,ccSrc]=detectCC()}
+const X={
+de:{s_speed:'Tempo',s_orbit:'Form der Erdbahn',s_show:'Anzeigen',s_data:'Messwerte',s_bg:'Hintergrund',
+sp:['Angehalten','Echtzeit (1 Jahr = 1 Jahr)','Ein Jahr dauert 1 Monat','Ein Jahr dauert 1 Woche','Ein Jahr dauert 1 Tag','Ein Jahr dauert 1 Stunde','Ein Jahr dauert 30 Minuten','Ein Jahr dauert 10 Minuten (Standard)','Ein Jahr dauert 5 Minuten','Ein Jahr dauert 1 Minute','Ein Jahr dauert 30 Sekunden','Ein Jahr dauert 10 Sekunden'],
+ex_lbl:'Ellipse der Bahn hervorheben',ecc_ex:'Die echte Erdbahn ist fast ein Kreis: Im Januar ist die Erde nur etwa 3 % näher an der Sonne als im Juli. Eingeschaltet wird ihre Ellipsenform deutlicher sichtbar.',slow:'langsamer',fast:'schneller',real:'echt',exag:'übertrieben',fs:'Vollbild',fsx:'Vollbild beenden',today:'Heute',sx:['—','Echtzeit','rund 12-mal schneller','rund 50-mal schneller','rund 365-mal schneller','rund 9 000-mal schneller','rund 18 000-mal schneller','rund 50 000-mal schneller','rund 100 000-mal schneller','rund 500 000-mal schneller','rund 1 Million Mal schneller','rund 3 Millionen Mal schneller']},
+en:{s_speed:'Speed',s_orbit:'Shape of the Earth\'s orbit',s_show:'Show',s_data:'Readings',s_bg:'Background',
+sp:['Stopped','Real time (1 year = 1 year)','One year takes 1 month','One year takes 1 week','One year takes 1 day','One year takes 1 hour','One year takes 30 minutes','One year takes 10 minutes (standard)','One year takes 5 minutes','One year takes 1 minute','One year takes 30 seconds','One year takes 10 seconds'],
+ex_lbl:'Highlight the orbit\'s ellipse',ecc_ex:'The real orbit is almost a circle: in January the Earth is only about 3 % closer to the Sun than in July. When switched on, its elliptical shape becomes easier to see.',slow:'slower',fast:'faster',real:'real',exag:'exaggerated',fs:'Full screen',fsx:'Exit full screen',today:'Today',sx:['—','Real time','about 12 times faster','about 50 times faster','about 365 times faster','about 9 000 times faster','about 18 000 times faster','about 50 000 times faster','about 100 000 times faster','about 500 000 times faster','about 1 million times faster','about 3 million times faster']},
+fr:{s_speed:'Vitesse',s_orbit:'Forme de l\'orbite terrestre',s_show:'Afficher',s_data:'Mesures',s_bg:'Contexte',
+sp:['Arrêté','Temps réel (1 an = 1 an)','Une année dure 1 mois','Une année dure 1 semaine','Une année dure 1 jour','Une année dure 1 heure','Une année dure 30 minutes','Une année dure 10 minutes (standard)','Une année dure 5 minutes','Une année dure 1 minute','Une année dure 30 secondes','Une année dure 10 secondes'],
+ex_lbl:'Mettre en évidence l\'ellipse de l\'orbite',ecc_ex:'La vraie orbite est presque un cercle : en janvier, la Terre n\'est qu\'environ 3 % plus proche du Soleil qu\'en juillet. Activé, sa forme elliptique devient plus visible.',slow:'plus lent',fast:'plus rapide',real:'réelle',exag:'exagérée',fs:'Plein écran',fsx:'Quitter le plein écran',today:'Aujourd\'hui',sx:['—','Temps réel','environ 12 fois plus vite','environ 50 fois plus vite','environ 365 fois plus vite','environ 9 000 fois plus vite','environ 18 000 fois plus vite','environ 50 000 fois plus vite','environ 100 000 fois plus vite','environ 500 000 fois plus vite','environ 1 million de fois plus vite','environ 3 millions de fois plus vite']},
+it:{s_speed:'Velocità',s_orbit:'Forma dell\'orbita terrestre',s_show:'Mostra',s_data:'Valori',s_bg:'Contesto',
+sp:['Fermo','Tempo reale (1 anno = 1 anno)','Un anno dura 1 mese','Un anno dura 1 settimana','Un anno dura 1 giorno','Un anno dura 1 ora','Un anno dura 30 minuti','Un anno dura 10 minuti (standard)','Un anno dura 5 minuti','Un anno dura 1 minuto','Un anno dura 30 secondi','Un anno dura 10 secondi'],
+ex_lbl:'Evidenzia l\'ellisse dell\'orbita',ecc_ex:'L\'orbita reale è quasi un cerchio: a gennaio la Terra è solo il 3 % circa più vicina al Sole che a luglio. Se attivo, la sua forma ellittica diventa più visibile.',slow:'più lento',fast:'più veloce',real:'reale',exag:'esagerata',fs:'Schermo intero',fsx:'Esci da schermo intero',today:'Oggi',sx:['—','Tempo reale','circa 12 volte più veloce','circa 50 volte più veloce','circa 365 volte più veloce','circa 9 000 volte più veloce','circa 18 000 volte più veloce','circa 50 000 volte più veloce','circa 100 000 volte più veloce','circa 500 000 volte più veloce','circa 1 milione di volte più veloce','circa 3 milioni di volte più veloce']},
+es:{s_speed:'Velocidad',s_orbit:'Forma de la órbita terrestre',s_show:'Mostrar',s_data:'Valores',s_bg:'Contexto',
+sp:['Detenido','Tiempo real (1 año = 1 año)','Un año dura 1 mes','Un año dura 1 semana','Un año dura 1 día','Un año dura 1 hora','Un año dura 30 minutos','Un año dura 10 minutos (estándar)','Un año dura 5 minutos','Un año dura 1 minuto','Un año dura 30 segundos','Un año dura 10 segundos'],
+ex_lbl:'Resaltar la elipse de la órbita',ecc_ex:'La órbita real es casi un círculo: en enero la Tierra está solo un 3 % más cerca del Sol que en julio. Activado, su forma elíptica se ve con más claridad.',slow:'más lento',fast:'más rápido',real:'real',exag:'exagerada',fs:'Pantalla completa',fsx:'Salir de pantalla completa',today:'Hoy',sx:['—','Tiempo real','unas 12 veces más rápido','unas 50 veces más rápido','unas 365 veces más rápido','unas 9 000 veces más rápido','unas 18 000 veces más rápido','unas 50 000 veces más rápido','unas 100 000 veces más rápido','unas 500 000 veces más rápido','cerca de 1 millón de veces más rápido','cerca de 3 millones de veces más rápido']},
+pt:{s_speed:'Velocidade',s_orbit:'Forma da órbita da Terra',s_show:'Mostrar',s_data:'Valores',s_bg:'Contexto',
+sp:['Parado','Tempo real (1 ano = 1 ano)','Um ano dura 1 mês','Um ano dura 1 semana','Um ano dura 1 dia','Um ano dura 1 hora','Um ano dura 30 minutos','Um ano dura 10 minutos (padrão)','Um ano dura 5 minutos','Um ano dura 1 minuto','Um ano dura 30 segundos','Um ano dura 10 segundos'],
+ex_lbl:'Destacar a elipse da órbita',ecc_ex:'A órbita real é quase um círculo: em janeiro a Terra está só cerca de 3 % mais perto do Sol do que em julho. Ligado, a sua forma elíptica fica mais visível.',slow:'mais lento',fast:'mais rápido',real:'real',exag:'exagerada',fs:'Ecrã inteiro',fsx:'Sair do ecrã inteiro',today:'Hoje',sx:['—','Tempo real','cerca de 12 vezes mais rápido','cerca de 50 vezes mais rápido','cerca de 365 vezes mais rápido','cerca de 9 000 vezes mais rápido','cerca de 18 000 vezes mais rápido','cerca de 50 000 vezes mais rápido','cerca de 100 000 vezes mais rápido','cerca de 500 000 vezes mais rápido','cerca de 1 milhão de vezes mais rápido','cerca de 3 milhões de vezes mais rápido']},
+zh:{s_speed:'速度',s_orbit:'地球轨道的形状',s_show:'显示',s_data:'数据',s_bg:'背景知识',
+sp:['已停止','实时（1 年 = 1 年）','一年 = 1 个月','一年 = 1 周','一年 = 1 天','一年 = 1 小时','一年 = 30 分钟','一年 = 10 分钟（标准）','一年 = 5 分钟','一年 = 1 分钟','一年 = 30 秒','一年 = 10 秒'],
+ex_lbl:'突出显示轨道的椭圆',ecc_ex:'真实的地球轨道几乎是圆形：一月时地球只比七月时离太阳近约 3%。打开后，轨道的椭圆形状会更清楚。',slow:'更慢',fast:'更快',real:'真实',exag:'夸大',fs:'全屏',fsx:'退出全屏',today:'今天',sx:['—','实时','约 12 倍','约 50 倍','约 365 倍','约 9 000 倍','约 18 000 倍','约 50 000 倍','约 100 000 倍','约 500 000 倍','约一百万倍','约三百万倍']},
+ar:{s_speed:'السرعة',s_orbit:'شكل مدار الأرض',s_show:'عرض',s_data:'القيم',s_bg:'خلفية علمية',
+sp:['متوقف','الوقت الحقيقي (سنة = سنة)','السنة تستغرق شهرًا واحدًا','السنة تستغرق أسبوعًا واحدًا','السنة تستغرق يومًا واحدًا','السنة تستغرق ساعة واحدة','السنة تستغرق 30 دقيقة','السنة تستغرق 10 دقائق (افتراضي)','السنة تستغرق 5 دقائق','السنة تستغرق دقيقة واحدة','السنة تستغرق 30 ثانية','السنة تستغرق 10 ثوانٍ'],
+ex_lbl:'إبراز الشكل البيضاوي للمدار',ecc_ex:'المدار الحقيقي يكاد يكون دائرة: في يناير تكون الأرض أقرب إلى الشمس بنحو 3 % فقط مما في يوليو. عند التشغيل يصبح شكله البيضاوي أوضح.',slow:'أبطأ',fast:'أسرع',real:'حقيقي',exag:'مبالغ فيه',fs:'ملء الشاشة',fsx:'إنهاء ملء الشاشة',today:'اليوم',sx:['—','الوقت الحقيقي','أسرع بنحو 12 مرة','أسرع بنحو 50 مرة','أسرع بنحو 365 مرة','أسرع بنحو 9 000 مرة','أسرع بنحو 18 000 مرة','أسرع بنحو 50 000 مرة','أسرع بنحو 100 000 مرة','أسرع بنحو 500 000 مرة','أسرع بنحو مليون مرة','أسرع بنحو 3 ملايين مرة']}};
+
+for(const k in X)Object.assign(L[k],X[k]);
+const SP=[0,1/86400,365.25/(30.4375*86400),365.25/(7*86400),365.25/86400,365.25/3600,365.25/1800,365.25/600,365.25/300,365.25/60,365.25/30,365.25/10];const spd=()=>SP[+$('speed').value];
+let T=L[lang],MON=[],MS=[];
+const fmtD=(dd,m)=>new Intl.DateTimeFormat(lang,{day:'numeric',month:'long',timeZone:'UTC'}).format(new Date(Date.UTC(2026,m,dd)));
+const cname=()=>{try{return new Intl.DisplayNames([lang],{type:'region'}).of(cc)}catch(_){return cc}};
+const fill=(s,o)=>s.replace(/\{(\w)\}/g,(_,k)=>o[k]);
+const nf=(v,d)=>v.toLocaleString(lang,{minimumFractionDigits:d,maximumFractionDigits:d});
+const ML=[31,28,31,30,31,30,31,31,30,31,30,31];
+const SE=m=>{const s=m==11||m<2?0:m<5?1:m<8?2:3;return ['',T.seasons[CC[cc][0]<0?(s+2)%4:s]]};
+let e=E_REAL, Mvis=0, playing=true, daysPerSec=365.25/600, spinMode='slow';
+const $=id=>document.getElementById(id);
+function kepler(M,e){let E=M;for(let i=0;i<40;i++)E-=(E-e*Math.sin(E)-M)/(1-e*Math.cos(E));return E}
+const nuOfM=(M,e)=>{const E=kepler(M,e);return 2*Math.atan2(Math.sqrt(1+e)*Math.sin(E/2),Math.sqrt(1-e)*Math.cos(E/2))};
+const MofNu=(nu,e)=>{const E=2*Math.atan2(Math.sqrt(1-e)*Math.sin(nu/2),Math.sqrt(1+e)*Math.cos(nu/2));return E-e*Math.sin(E)};
+const mod=(a,b)=>((a%b)+b)%b;
+const doyOfNu=nu=>mod(MofNu(nu,E_REAL)/(2*Math.PI)*YEAR+2.5,YEAR);
+const nuOfDoy=d=>nuOfM(2*Math.PI*(d-2.5)/YEAR,E_REAL);
+const rVis=nu=>A*(1-e*e)/(1+e*Math.cos(nu));
+const posVis=nu=>{const r=rVis(nu),L=nu+LP;return new THREE.Vector3(r*Math.cos(L),r*Math.sin(L),0)};
+const doyToMD=d=>{let dd=Math.floor(d),m=0;while(m<11&&dd>=ML[m]){dd-=ML[m];m++}return [dd+1,m]};
+// ---------- scene ----------
+const view=$('view');
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;renderer.toneMapping=THREE.ACESFilmicToneMapping;
+view.appendChild(renderer.domElement);
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x04050c);
+const camera=new THREE.PerspectiveCamera(45,1,0.05,500);
+const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.enablePan=false;controls.minDistance=1.2;controls.maxDistance=30;
+function resize(){const w=view.clientWidth,h=view.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
+addEventListener('resize',resize);addEventListener('orientationchange',()=>setTimeout(resize,150));new ResizeObserver(resize).observe(view);resize();
+const ecl=new THREE.Group();ecl.rotation.x=-Math.PI/2;scene.add(ecl);
+const E2W=v=>new THREE.Vector3(v.x,v.z,-v.y); // ecliptic -> world
+{const g=new THREE.BufferGeometry(),n=2000,p=new Float32Array(n*3);
+ for(let i=0;i<n;i++){const v=new THREE.Vector3().randomDirection().multiplyScalar(150+Math.random()*100);p.set([v.x,v.y,v.z],i*3)}
+ g.setAttribute('position',new THREE.BufferAttribute(p,3));scene.add(new THREE.Points(g,new THREE.PointsMaterial({size:0.5,color:0xbbbbcc})))}
+scene.add(new THREE.AmbientLight(0x151820,0.03));
+const brass=new THREE.MeshStandardMaterial({color:0xc9a04a,metalness:0.85,roughness:0.32});
+const sunLight=new THREE.DirectionalLight(0xfff1d6,3.15);
+sunLight.castShadow=true;sunLight.shadow.mapSize.set(1024,1024);
+sunLight.shadow.camera.near=1;sunLight.shadow.camera.far=14;
+sunLight.shadow.camera.left=sunLight.shadow.camera.bottom=-3;
+sunLight.shadow.camera.right=sunLight.shadow.camera.top=3;
+sunLight.shadow.bias=-0.0003;sunLight.shadow.normalBias=0.02;
+ecl.add(sunLight);ecl.add(sunLight.target);
+const sun=new THREE.Mesh(new THREE.SphereGeometry(RS,64,32),(()=>{const tx=new THREE.TextureLoader().load('__SUN__');tx.colorSpace=THREE.SRGBColorSpace;tx.anisotropy=renderer.capabilities.getMaxAnisotropy();return new THREE.MeshBasicMaterial({map:tx,toneMapped:false})})());ecl.add(sun);
+{const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');const g=x.createRadialGradient(128,128,0,128,128,128);
+ g.addColorStop(0,'rgba(255,236,180,0.95)');g.addColorStop(.25,'rgba(255,200,90,0.45)');g.addColorStop(.55,'rgba(255,150,40,0.12)');g.addColorStop(1,'rgba(255,120,20,0)');x.fillStyle=g;x.fillRect(0,0,256,256);
+ const s=new THREE.Sprite(new THREE.SpriteMaterial({map:(()=>{const k=new THREE.CanvasTexture(c);k.colorSpace=THREE.SRGBColorSpace;return k})(),blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,toneMapped:false}));s.scale.set(RS*9/1.7,RS*9/1.7,1);ecl.add(s)}
+function label(txt,col,w=2.2,h=0.55){const long=String(txt).length>16;const c=document.createElement('canvas');c.width=long?1024:512;c.height=128;const x=c.getContext('2d');x.font='bold '+(long?56:76)+'px sans-serif';x.fillStyle=col;x.textAlign='center';x.textBaseline='middle';x.fillText(txt,c.width/2,64,c.width-24);
+ const s=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthWrite:false,transparent:true}));s.scale.set(long?Math.max(w,3.6):w,h,1);return s}
+let sunLab=null;function mkSunLab(){if(sunLab)ecl.remove(sunLab);sunLab=label(T.sun,'#ffd070',2.4,0.6);sunLab.position.set(0,0,1.3);ecl.add(sunLab)}
+let ring,circle,markerGroup,monthGroup;
+function sketchPath(pts,col,op,dash,gap,jit){const n=pts.length,out=[];
+ for(let i=0;i<n;i++){const p=pts[i],len=p.length()||1;const w=Math.sin(i*0.21)*0.55+Math.sin(i*0.07)*0.45;out.push(p.clone().multiplyScalar(1+(jit||0.01)*w/len))}
+ const g=new THREE.BufferGeometry().setFromPoints(out);
+ const m=new THREE.LineDashedMaterial({color:col,transparent:true,opacity:op,dashSize:dash,gapSize:gap,depthWrite:false});
+ const line=new THREE.LineLoop(g,m);line.computeLineDistances();return line}
+function buildOrbit(){
+ [ring,circle,markerGroup,monthGroup].forEach(o=>{if(o)ecl.remove(o)});
+ const pts=[];for(let i=0;i<=360;i++)pts.push(posVis(i/360*2*Math.PI));
+ const hi=e>E_REAL+1e-6;ring=sketchPath(pts,hi?0xb8b4a6:0x8a8a96,hi?0.72:0.42,hi?0.16:0.11,hi?0.07:0.1,hi?0.016:0.012);ecl.add(ring);
+ monthGroup=new THREE.Group();ecl.add(monthGroup);
+ for(let m=0;m<12;m++){let d=0;for(let i=0;i<m;i++)d+=ML[i];const p=posVis(nuOfDoy(d+14));const s=label(MS[m],'#e8c27a',2.3,0.57);
+  s.position.copy(p.clone().multiplyScalar(1+1.0/p.length())).add(new THREE.Vector3(0,0,0.15));monthGroup.add(s)}
+ const cen=new THREE.Vector3(-A*e*Math.cos(LP),-A*e*Math.sin(LP),0);
+ const cp=[];for(let i=0;i<=256;i++){const t=i/256*2*Math.PI;cp.push(cen.clone().add(new THREE.Vector3(A*Math.cos(t),A*Math.sin(t),0)))}
+ markerGroup=new THREE.Group();markerGroup.visible=$('marks').checked;ecl.add(markerGroup);
+ circle=new THREE.Line(new THREE.BufferGeometry().setFromPoints(cp),new THREE.LineDashedMaterial({color:0x6e6e82,transparent:true,opacity:0.45,dashSize:0.15,gapSize:0.12,depthWrite:false}));circle.computeLineDistances();markerGroup.add(circle);
+ [[0,T.mk[0]],[Math.PI,T.mk[1]],[Math.PI/2-LP,T.mk[2]],[1.5*Math.PI-LP,T.mk[3]]].forEach(([nu,tx])=>{const p=posVis(nu);const s=label(tx,'#9ab4cc',2.2,0.5);s.position.copy(p).add(new THREE.Vector3(0,0,0.7));markerGroup.add(s)});
+}
+const earthSys=new THREE.Group();ecl.add(earthSys);
+const moonRing=sketchPath((()=>{const a=[];for(let i=0;i<=128;i++){const t=i/128*2*Math.PI;a.push(new THREE.Vector3(RMO*Math.cos(t),RMO*Math.sin(t),0))}return a})(),0x8a8a96,0.38,0.06,0.055,0.006);
+earthSys.add(moonRing);
+const eq=new THREE.Group();eq.rotation.x=-EPS;earthSys.add(eq);
+const tex=new THREE.TextureLoader().load(EARTH_TEX,img=>{
+ tex.colorSpace=THREE.SRGBColorSpace;
+ const w=img.image?img.image.width:img.width,h=img.image?img.image.height:img.height,src=img.image||img;
+ if(!w)return;
+ const c1=document.createElement('canvas');c1.width=w;c1.height=h;const x1=c1.getContext('2d');x1.drawImage(src,0,0);
+ const im=x1.getImageData(0,0,w,h),d=im.data;
+ const cR=document.createElement('canvas');cR.width=w;cR.height=h;const rD=x1.createImageData(w,h);
+ for(let i=0;i<d.length;i+=4){const r=d[i],g=d[i+1],b=d[i+2];const ocean=b>r+8&&b>g-4&&b>45&&r<130&&(b-r)>12;rD.data[i]=rD.data[i+1]=rD.data[i+2]=ocean?188:220;rD.data[i+3]=255}
+ cR.getContext('2d').putImageData(rD,0,0);
+ const rTex=new THREE.CanvasTexture(cR);rTex.anisotropy=4;
+ earth.material.roughnessMap=rTex;earth.material.metalnessMap=null;earth.material.roughness=1;earth.material.metalness=0;earth.material.needsUpdate=true});
+tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;
+const earth=new THREE.Mesh(new THREE.SphereGeometry(RE,96,64),new THREE.MeshStandardMaterial({map:tex,roughness:0.78,metalness:0}));earth.castShadow=earth.receiveShadow=true;
+const spinG=new THREE.Group();eq.add(spinG);earth.rotation.x=Math.PI/2;spinG.add(earth);
+const atmMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.BackSide,toneMapped:true,
+ uniforms:{lightDir:{value:new THREE.Vector3(1,0,0)},dayColor:{value:new THREE.Color(0x6b9fd0)},sunsetColor:{value:new THREE.Color(0xd4926a)}},
+ vertexShader:'varying vec3 vN;varying vec3 vV;void main(){vec4 w=modelViewMatrix*vec4(position,1.0);vN=normalize(normalMatrix*normal);vV=w.xyz;gl_Position=projectionMatrix*w;}',
+ fragmentShader:'uniform vec3 lightDir;uniform vec3 dayColor;uniform vec3 sunsetColor;varying vec3 vN;varying vec3 vV;void main(){vec3 n=normalize(vN);vec3 v=normalize(-vV);float fres=pow(1.0-abs(dot(n,v)),3.4);float ndl=dot(n,normalize(lightDir));float day=smoothstep(-0.05,0.22,ndl);float term=smoothstep(0.2,0.0,abs(ndl))*day;vec3 col=mix(dayColor,sunsetColor,term*0.95);float a=fres*day*0.48;gl_FragColor=vec4(col,a);}'});
+eq.add(new THREE.Mesh(new THREE.SphereGeometry(RE*1.042,64,48),atmMat));
+const axis=new THREE.Mesh(new THREE.CylinderGeometry(0.014,0.014,RE*3.2,8),brass);axis.rotation.x=Math.PI/2;eq.add(axis);
+const cap=new THREE.Mesh(new THREE.SphereGeometry(0.045,16,8),brass);cap.position.z=RE*1.6;eq.add(cap);
+let pin=new THREE.Group();{const needle=new THREE.Mesh(new THREE.CylinderGeometry(0.007,0.007,0.24,6),new THREE.MeshStandardMaterial({color:0xdddddd,metalness:.9,roughness:.2}));needle.position.y=0.12;pin.add(needle);
+ const head=new THREE.Mesh(new THREE.SphereGeometry(0.045,16,8),new THREE.MeshStandardMaterial({color:0xff2020,roughness:.4,emissive:0x600000}));head.position.y=0.24;pin.add(head);earth.add(pin)}
+function placePin(){const la=CC[cc][0]*Math.PI/180,lo=CC[cc][1]*Math.PI/180;const n=new THREE.Vector3(Math.cos(la)*Math.cos(lo),Math.sin(la),-Math.cos(la)*Math.sin(lo));
+ pin.position.copy(n.clone().multiplyScalar(RE*0.98));pin.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),n)}
+placePin();
+const moon=new THREE.Mesh(new THREE.SphereGeometry(RM,48,24),new THREE.MeshStandardMaterial({color:0xc9c4b8,roughness:0.88,metalness:0.02}));moon.castShadow=true;moon.receiveShadow=true;earthSys.add(moon);
+// ---------- update ----------
+let phIdx=0;
+function moonSVG(el){const k=Math.cos(el),R=26,wax=el<Math.PI;const rx=Math.abs(k)*R;const s1=wax?1:0;const s2=(k>0)!==wax?1:0;
+ return `<svg width="60" height="60" viewBox="-30 -30 60 60"><circle r="${R}" fill="#3a3128" stroke="#8a7a60" stroke-width="1"/><path d="M0,-${R} A${R},${R} 0 0 ${s1} 0,${R} A${rx},${R} 0 0 ${s2} 0,-${R}Z" fill="#f1e6cf"/></svg>`}
+let curDoy=2.5,lastMonth=-1;
+function update(){
+ const nu=nuOfM(Mvis,e);const p=posVis(nu);earthSys.position.copy(p);
+ const L=Math.atan2(p.y,p.x);const d=doyOfNu(nu);curDoy=d;const tc=(mod(MofNu(nu,E_REAL),2*Math.PI)/(2*Math.PI)+Math.floor(Mvis/(2*Math.PI)))*YEAR+2.5;
+ const [dd,m]=doyToMD(d);const se=SE(m);
+ $('datum').textContent=fmtD(dd,m);$('sub').textContent=se[1];if($('fsDatum')){$('fsDatum').textContent=$('datum').textContent;$('fsSub').textContent=se[1]}
+ if(m!==lastMonth){lastMonth=m;document.querySelectorAll('#months button').forEach((b,i)=>b.classList.toggle('on',i===m))}
+ const rr=AU*(1-E_REAL**2)/(1+E_REAL*Math.cos(nu)),v=29.78*Math.sqrt(2*AU/rr-1);
+ const h=mod(tc,1)*24;$('xdate').textContent=`${fmtD(dd,m)} ${String(Math.floor(h)).padStart(2,'0')}:${String(Math.floor(h%1*60)).padStart(2,'0')} UTC`;
+ $('dist').textContent=nf(rr/1e6,2)+' '+T.mkm;$('vel').textContent=nf(v,2)+' km/s';
+ const elong=mod(2*Math.PI*(tc-2.5)/29.5306+Math.PI,2*Math.PI);const ma=L+Math.PI+elong;moon.position.set(RMO*Math.cos(ma),RMO*Math.sin(ma),0);
+ phIdx=Math.floor(mod(elong/(2*Math.PI)*8+0.5,8));$('moonIcon').innerHTML=moonSVG(elong);$('moonName').textContent=T.phases[phIdx];
+ $('illum').textContent=Math.round((1-Math.cos(elong))/2*100)+' %';
+ const frac=mod(tc,1);
+ const lonSub=-(frac*24-12)*15*Math.PI/180;
+ earthSys.updateMatrixWorld(true);const sl=eq.worldToLocal(sun.getWorldPosition(new THREE.Vector3())).normalize();
+ spinG.rotation.z=Math.atan2(sl.y,sl.x)-lonSub;
+ sunLight.target.position.copy(earthSys.position);sunLight.target.updateMatrixWorld();
+}
+const setDoy=d=>{Mvis=MofNu(nuOfDoy(d),e);update()};
+// ---------- camera: smooth moves, follow earth ----------
+let follow=false,tween=null;const lastEarth=new THREE.Vector3();
+const earthW=()=>earth.getWorldPosition(new THREE.Vector3());
+function moveCam(pos,target,fol){tween={p0:camera.position.clone(),t0:controls.target.clone(),p1:pos,t1:target,k:0,rel:fol};follow=fol;lastEarth.copy(earthW())}
+function camOverview(){monthGroup.visible=true;sunLab.visible=true;const k=Math.max(1,1.25/camera.aspect);moveCam(new THREE.Vector3(0,9*k,7.2*k),new THREE.Vector3(0,0,0),false)}
+function camEarth(dist,sideK,upK,backK){const w=earthW();const dir=w.clone().normalize();const side=new THREE.Vector3(0,1,0).cross(dir).normalize();
+ const off=new THREE.Vector3().addScaledVector(dir,backK*dist).addScaledVector(side,sideK*dist).add(new THREE.Vector3(0,upK*dist,0));
+ monthGroup.visible=false;sunLab.visible=false;tween={p0:camera.position.clone(),t0:controls.target.clone(),off,k:0,rel:true};follow=true;lastEarth.copy(w)}
+// ---------- scenes ----------
+let curMsg=['t_start'];const msg=()=>{const [k,o]=curMsg;return fill(T[k],Object.assign({c:cname()},o?o():{}))};
+function say(k,o){curMsg=[k,o];$('say').textContent=msg()}
+function setPlay(p){const start=!!p&&!playing;playing=!!p;const tx=playing?T.pause:T.play;$('play').textContent=tx;if($('fsPlay'))$('fsPlay').textContent=tx;if(start){armClock();startLoop()}}
+const toView=()=>{const r=view.getBoundingClientRect(),s=$('say').getBoundingClientRect();if(r.top<0||s.bottom>innerHeight)scrollTo({top:scrollY+r.top-8,behavior:'smooth'})};
+function scene_(s){toView();document.querySelectorAll('#scenes button').forEach(b=>b.classList.toggle('on',b.dataset.s===s));
+ if(s==='tag'){spinMode='real';daysPerSec=0.35;setPlay(true);camEarth(2.4,0.95,0.3,-0.55);say('t_tag')}
+ else if(s==='jahr'){spinMode='slow';daysPerSec=spd();setPlay(true);camOverview();say('t_jahr')}
+ else if(s==='mond'){spinMode='slow';daysPerSec=2;setPlay(true);camEarth(2.6,0.2,1.25,-0.45);say('t_mond')}
+ else if(s==='ch'){spinMode='real';setPlay(false);setDoy(Math.floor(curDoy)+mod(12-CC[cc][1]/15,24)/24);camEarth(1.9,0.15,0.8*Math.sin(CC[cc][0]*Math.PI/180),-0.9);say('t_ch')}}
+document.querySelectorAll('#scenes button').forEach(b=>b.onclick=()=>scene_(b.dataset.s));
+$('home').onclick=()=>{toView();document.querySelectorAll('#scenes button').forEach(b=>b.classList.remove('on'));spinMode='slow';daysPerSec=spd();camOverview();say('t_start')};
+$('play').onclick=()=>setPlay(!playing);
+// months
+for(let i=0;i<12;i++){const b=document.createElement('button');
+ b.onclick=()=>{let d=0;for(let k=0;k<i;k++)d+=ML[k];setDoy(d+14.5);say('t_month',()=>({m:MON[i],s:SE(i)[1]}))};$('months').appendChild(b)}
+// birthday
+for(let i=1;i<=31;i++)$('bday').add(new Option(String(i),i));for(let i=0;i<12;i++)$('bmon').add(new Option('',i));
+$('bgo').onclick=()=>{const m=+$('bmon').value,dd=Math.min(+$('bday').value,ML[m]);let d=0;for(let k=0;k<m;k++)d+=ML[k];setPlay(false);setDoy(d+dd-0.5);
+ document.querySelectorAll('#scenes button').forEach(b=>b.classList.remove('on'));spinMode='slow';toView();camEarth(3.2,0.9,0.8,-0.7);monthGroup.visible=true;say('t_date',()=>({d:fmtD(dd,m)}))};
+// expert
+const setE=v=>{const d=curDoy;e=v;$('ecc').checked=v>E_REAL;$('ev').textContent=T.ex_lbl;buildOrbit();setDoy(d)};
+$('ecc').onchange=ev=>setE(ev.target.checked?0.2:E_REAL);
+function fmtMult(i){return (T.sx&&T.sx[i])||'—'}
+function setMult(){const i=+$('speed').value,tx=fmtMult(i);if($('spx'))$('spx').textContent=tx;if($('fsSpx'))$('fsSpx').textContent=tx}
+const onSp=()=>{$('spv').textContent=T.sp[+$('speed').value];if($('fsSpv')){$('fsSpv').textContent=$('spv').textContent;$('fsSpeed').value=$('speed').value}setMult();daysPerSec=spd()};
+$('speed').oninput=$('speed').onchange=onSp;
+$('fsSpeed').oninput=$('fsSpeed').onchange=()=>{$('speed').value=$('fsSpeed').value;onSp()};
+$('fsPlay').onclick=()=>setPlay(!playing);
+function todayDoy(){const n=new Date(),m=n.getMonth(),dd=Math.min(n.getDate(),ML[m]);let d=0;for(let k=0;k<m;k++)d+=ML[k];return d+dd-1+(n.getHours()+n.getMinutes()/60+n.getSeconds()/3600+n.getMilliseconds()/3.6e6)/24}
+function goToday(){const d=todayDoy();setDoy(d);const [dd,mo]=doyToMD(d);$('bday').value=String(dd);$('bmon').value=String(mo);say('t_date',()=>({d:fmtD(dd,mo)}))}
+$('btoday').onclick=goToday;
+
+$('marks').onchange=ev=>markerGroup.visible=ev.target.checked;
+function applyLang(){T=L[lang];document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';
+ MON=[...Array(12)].map((_,i)=>new Intl.DateTimeFormat(lang,{month:'long',timeZone:'UTC'}).format(new Date(Date.UTC(2026,i,15))));
+ MS=[...Array(12)].map((_,i)=>new Intl.DateTimeFormat(lang,{month:'short',timeZone:'UTC'}).format(new Date(Date.UTC(2026,i,15))).replace(/\.$/,''));
+ document.title=T.title;$('title').textContent=T.title;['intro','hint'].forEach(k=>$(k).textContent=T[k]);
+ $('b_tag').textContent=T.tag;$('b_jahr').textContent=T.jahr;$('b_mond').textContent=T.mond;$('b_ch').textContent=cname();
+ $('l_phase').textContent=T.phase;$('l_pick').textContent=T.pick;$('btoday').textContent=T.today;$('bgo').textContent=T.show;$('home').textContent=T.over;$('l_country').textContent=T.country;$('spv').textContent=T.sp[+$('speed').value];if($('fsSpv')){$('fsSpv').textContent=$('spv').textContent;$('l_fs_speed').textContent=T.s_speed}setMult();if(window.syncFsUi)window.syncFsUi();$('ecc_ex').textContent=T.ecc_ex;['s_speed','s_orbit','s_show','s_data','s_bg','slow','fast'].forEach(k=>$('l_'+k).textContent=T[k]);$('geo').textContent=ccSrc==='tz'?T.g_tz:ccSrc==='lang'?T.g_lang:'';
+ ['details','xdate','dist','vel','illum','marks'].forEach(k=>$('l_'+k).textContent=T[k]);$('phys').textContent=fill(T.phys,{c:cname()});
+ document.querySelectorAll('#months button').forEach((b,i)=>{b.textContent=MS[i];b.setAttribute('aria-label',MON[i])});
+ [...$('bmon').options].forEach((o,i)=>o.textContent=MON[i]);
+ const dn=new Intl.DisplayNames([lang],{type:'region'});const sel=$('country');sel.innerHTML='';
+ Object.keys(CC).map(c=>[c,dn.of(c)]).sort((a,b)=>a[1].localeCompare(b[1],lang)).forEach(([c,n])=>sel.add(new Option(n,c)));sel.value=cc;
+ setPlay(playing);mkSunLab();if(ring)setE(e);else update();$('say').textContent=msg()}
+Object.entries(L).forEach(([k,v])=>$('lang').add(new Option(v.n,k)));$('lang').value=lang;
+$('lang').onchange=ev=>{lang=ev.target.value;LS('tell_lang',lang);applyLang()};
+$('country').onchange=ev=>{cc=ev.target.value;ccSrc='user';LS('tell_cc',cc);placePin();applyLang();if(document.querySelector('#scenes button.on')?.dataset.s==='ch')scene_('ch')};
+window.__sim={adv:dd=>{Mvis+=2*Math.PI*dd/YEAR;update()},ea:()=>spinG.rotation.z,ma:()=>Math.atan2(moon.position.y,moon.position.x),el:()=>phIdx,Mvis:()=>Mvis};
+
+const fsNativeEl=()=>document.fullscreenElement||document.webkitFullscreenElement||null;
+const canNativeFs=()=>!!(view.requestFullscreen||view.webkitRequestFullscreen||view.webkitRequestFullScreen);
+const isFs=()=>fsNativeEl()===view||view.classList.contains('pseudo-fs');
+const fsMode=()=>view.classList.contains('pseudo-fs')?'pseudo':(fsNativeEl()===view?'native':false);
+window.syncFsUi=function syncFsUi(){const on=isFs(),btn=$('fsBtn');
+ btn.classList.toggle('is-fs',on);btn.setAttribute('aria-pressed',on?'true':'false');
+ btn.setAttribute('aria-label',on?T.fsx:T.fs);btn.title=on?T.fsx:T.fs;
+ requestAnimationFrame(()=>{resize();setTimeout(resize,150)})}
+function enterPseudo(){if(view.classList.contains('pseudo-fs'))return;view.classList.add('pseudo-fs');document.documentElement.classList.add('fs-pseudo');syncFsUi()}
+function exitPseudo(){if(!view.classList.contains('pseudo-fs'))return;view.classList.remove('pseudo-fs');document.documentElement.classList.remove('fs-pseudo');syncFsUi()}
+function enterNative(){const fn=view.requestFullscreen||view.webkitRequestFullscreen||view.webkitRequestFullScreen;if(!fn)return Promise.reject(new Error('no fs'));try{const r=fn.call(view,typeof Element!=='undefined'?Element.ALLOW_KEYBOARD_INPUT:undefined);return r&&typeof r.then==='function'?r:Promise.resolve()}catch(err){return Promise.reject(err)}}
+function exitNative(){const fn=document.exitFullscreen||document.webkitExitFullscreen||document.webkitCancelFullScreen;if(!fn)return Promise.resolve();try{const r=fn.call(document);return r&&typeof r.then==='function'?r:Promise.resolve()}catch(_){return Promise.resolve()}}
+function enterFs(mode){if(isFs())return Promise.resolve(fsMode());
+ if(mode==='pseudo'||!canNativeFs()){enterPseudo();return Promise.resolve('pseudo')}
+ return enterNative().then(()=>{if(fsNativeEl()===view){syncFsUi();return 'native'}enterPseudo();return 'pseudo'}).catch(()=>{enterPseudo();return 'pseudo'})}
+function exitFs(){if(view.classList.contains('pseudo-fs')){exitPseudo();return Promise.resolve()}if(fsNativeEl())return exitNative().then(()=>syncFsUi());return Promise.resolve()}
+function toggleFs(mode){return isFs()?exitFs():enterFs(mode)}
+$('fsBtn').onclick=()=>toggleFs();
+['fullscreenchange','webkitfullscreenchange'].forEach(ev=>document.addEventListener(ev,syncFsUi));
+document.addEventListener('keydown',ev=>{if((ev.key==='Escape'||ev.key==='Esc')&&view.classList.contains('pseudo-fs')){ev.preventDefault();exitPseudo()}});
+const coarse=window.matchMedia&&matchMedia('(hover: none) and (pointer: coarse)').matches;
+function wakeFsUi(){view.classList.add('fs-ui-on');clearTimeout(wakeFsUi.t);if(coarse)wakeFsUi.t=setTimeout(()=>view.classList.remove('fs-ui-on'),3500)}
+if(coarse)wakeFsUi();
+view.addEventListener('pointerdown',wakeFsUi,{passive:true});
+window.tell={setLang:l=>{$('lang').value=l;$('lang').onchange({target:$('lang')})},setCountry:c=>{$('country').value=c;$('country').onchange({target:$('country')})},setDoy,scene:scene_,camera,controls,pause:()=>setPlay(false),play:()=>setPlay(true),isPlaying:()=>playing,daysPerSec:()=>daysPerSec,setSpeed:i=>{const s=$('speed');s.value=String(i);s.dispatchEvent(new Event('input',{bubbles:true}));s.dispatchEvent(new Event('change',{bubbles:true}))},overview:()=>$('home').click(),toggleFs,enterFs,exitFs,isFs,fsMode,setToday:goToday,todayDoy,mult:()=>fmtMult(+$('speed').value)};
+window.__opt={earthPath:()=>ring,moonPath:()=>moonRing};
+
+
+mkSunLab();setE(E_REAL);setDoy(80);applyLang();camera.position.set(0,9,7.2);controls.update();say('t_start');
+let last=performance.now();
+function armClock(){last=performance.now()}
+function startLoop(){renderer.setAnimationLoop(tick)}
+function tick(now){
+ const t=(typeof now==='number'&&isFinite(now))?now:performance.now();
+ let dt=(t-last)/1000;
+ if(!isFinite(dt)||dt<0)dt=0;else if(dt>0.1)dt=0.1;
+ last=t;
+ if(playing){const inc=2*Math.PI*daysPerSec*dt/YEAR;if(isFinite(inc)){Mvis+=inc;update()}}
+ sun.rotation.x=Math.PI/2;sun.rotation.y=Mvis*YEAR/27;
+ const w=earthW();
+ if(tween){tween.k=Math.min(1,tween.k+dt/1.2);const s=tween.k*tween.k*(3-2*tween.k);
+  const p1=tween.rel?w.clone().add(tween.off):tween.p1,t1=tween.rel?w:tween.t1;
+  camera.position.lerpVectors(tween.p0,p1,s);controls.target.lerpVectors(tween.t0,t1,s);if(tween.k>=1)tween=null}
+ else if(follow){const dl=w.clone().sub(lastEarth);camera.position.add(dl);controls.target.add(dl)}
+ lastEarth.copy(w);controls.update();
+ if(atmMat){const toSun=sun.getWorldPosition(new THREE.Vector3()).sub(earth.getWorldPosition(new THREE.Vector3())).normalize();atmMat.uniforms.lightDir.value.copy(toSun).transformDirection(camera.matrixWorldInverse)}
+ renderer.render(scene,camera)}
+function onWake(){armClock();startLoop()}
+document.addEventListener('visibilitychange',()=>{armClock();if(!document.hidden)startLoop()});
+window.addEventListener('pageshow',onWake);
+window.addEventListener('focus',armClock);
+renderer.domElement.addEventListener('webglcontextrestored',onWake);
+window.__anim={armClock,startLoop,onWake,setLast:v=>{last=v},getLast:()=>last};
+startLoop();
+window.__ready=true;
+</script></body></html>
