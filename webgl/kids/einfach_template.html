@@ -26,6 +26,10 @@ h1{font-family:Fraunces,Palatino,"Palatino Linotype",Georgia,serif;font-size:30p
 #hint{position:absolute;top:8px;right:10px;font-size:14px;color:var(--mut);background:rgba(0,0,0,.45);padding:3px 9px;border-radius:99px;pointer-events:none}
 .row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:14px 0 6px}
 #datum{font-family:Fraunces,Palatino,Georgia,serif;font-size:30px;font-weight:600}
+.when{display:flex;align-items:baseline;gap:.45em;flex-wrap:wrap}
+#uhr,#fsUhr{font-family:Fraunces,Palatino,Georgia,serif;font-size:20px;font-weight:600;color:var(--mut);letter-spacing:.02em;display:none}
+#uhr.on,#fsUhr.on{display:inline}
+#fsUhr{font-size:17px}
 #sub{color:var(--mut);font-size:17px}
 button,select{font:inherit;color:var(--fg);background:transparent;border:2px solid var(--line);border-radius:99px;cursor:pointer;min-height:52px;padding:6px 16px}
 button:active{transform:scale(.97)}
@@ -53,7 +57,7 @@ details input{accent-color:#e0b35a}
 .speed-card .big{font-size:20px;color:var(--fg);margin:2px 0 8px;font-weight:600}
 .speed-card input[type=range]{width:100%;height:28px;accent-color:#e0b35a;margin:0}
 .speed-card .ends{margin-top:4px;color:var(--mut)}
-@media(max-width:560px){h1{font-size:25px}#datum{font-size:25px}.say{min-height:3em;margin:10px 2px 0;font-size:19px}
+@media(max-width:560px){h1{font-size:25px}#datum{font-size:25px}#uhr{font-size:17px}.say{min-height:3em;margin:10px 2px 0;font-size:19px}
 .lbl{color:var(--mut);font-size:16px}
 #moonIcon svg{display:block}
 #view{height:46vh}
@@ -107,11 +111,11 @@ html.fs-pseudo,html.fs-pseudo body{overflow:hidden;height:100%;overscroll-behavi
 <svg class="i-col" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="square" aria-hidden="true"><path d="M3 8h5V3M21 8h-5V3M3 16h5v5M21 16h-5v5"/></svg>
 </button>
 <div id="fsHud">
-<div class="fs-top"><div><div id="fsDatum"></div><div id="fsSub"></div></div><button type="button" id="fsPlay">Pause</button></div>
+<div class="fs-top"><div><div class="when"><span id="fsDatum"></span><span id="fsUhr"></span></div><div id="fsSub"></div></div><button type="button" id="fsPlay">Pause</button></div>
 <div class="fs-speed"><div class="h-row"><div class="h" id="l_fs_speed"></div><span id="fsSpx"></span></div><div id="fsSpv"></div><input id="fsSpeed" type="range" min="0" max="11" step="1" value="7"></div>
 </div></div>
 <p id="say" class="say"></p>
-<div class="row"><div><div id="datum"></div><div id="sub"></div></div><button id="play">Pause</button></div>
+<div class="row"><div><div class="when"><span id="datum"></span><span id="uhr"></span></div><div id="sub"></div></div><button id="play">Pause</button></div>
 <div class="card speed-card"><div class="speed-head"><h3 id="l_s_speed"></h3><span id="spx"></span></div><div class="big" id="spv"></div><input id="speed" type="range" min="0" max="11" step="1" value="7" aria-labelledby="l_s_speed"><div class="ends"><span id="l_slow"></span><span id="l_fast"></span></div></div>
 <div id="months"></div>
 <div id="scenes">
@@ -230,6 +234,15 @@ const nuOfDoy=d=>nuOfM(2*Math.PI*(d-2.5)/YEAR,E_REAL);
 const rVis=nu=>A*(1-e*e)/(1+e*Math.cos(nu));
 const posVis=nu=>{const r=rVis(nu),L=nu+LP;return new THREE.Vector3(r*Math.cos(L),r*Math.sin(L),0)};
 const doyToMD=d=>{let dd=Math.floor(d),m=0;while(m<11&&dd>=ML[m]){dd-=ML[m];m++}return [dd+1,m]};
+const CLOCK_LANGS={de:1,fr:1,it:1,es:1,pt:1};
+function clockOn(){return +$('speed').value<=4}
+function fmtHM(tc){const h=mod(tc,1)*24,hh=Math.floor(h),mm=Math.floor((h-hh)*60+1e-9);
+ const d=new Date(Date.UTC(2026,0,1,hh,mm)),o={hour:'2-digit',minute:'2-digit',timeZone:'UTC'};
+ if(CLOCK_LANGS[lang])o.hour12=false;
+ return new Intl.DateTimeFormat(lang,o).format(d)}
+function paintWhen(dd,m,tc){const date=fmtD(dd,m),on=clockOn(),tm=on?fmtHM(tc):'';
+ $('datum').textContent=date;const u=$('uhr');if(u){u.textContent=tm;u.classList.toggle('on',on)}
+ if($('fsDatum'))$('fsDatum').textContent=date;if($('fsUhr')){$('fsUhr').textContent=tm;$('fsUhr').classList.toggle('on',on)}}
 // ---------- scene ----------
 const view=$('view');
 const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
@@ -320,7 +333,7 @@ function update(){
  const nu=nuOfM(Mvis,e);const p=posVis(nu);earthSys.position.copy(p);
  const L=Math.atan2(p.y,p.x);const d=doyOfNu(nu);curDoy=d;const tc=(mod(MofNu(nu,E_REAL),2*Math.PI)/(2*Math.PI)+Math.floor(Mvis/(2*Math.PI)))*YEAR+2.5;
  const [dd,m]=doyToMD(d);const se=SE(m);
- $('datum').textContent=fmtD(dd,m);$('sub').textContent=se[1];if($('fsDatum')){$('fsDatum').textContent=$('datum').textContent;$('fsSub').textContent=se[1]}
+ paintWhen(dd,m,tc);$('sub').textContent=se[1];if($('fsSub'))$('fsSub').textContent=se[1]
  if(m!==lastMonth){lastMonth=m;document.querySelectorAll('#months button').forEach((b,i)=>b.classList.toggle('on',i===m))}
  const rr=AU*(1-E_REAL**2)/(1+E_REAL*Math.cos(nu)),v=29.78*Math.sqrt(2*AU/rr-1);
  const h=mod(tc,1)*24;$('xdate').textContent=`${fmtD(dd,m)} ${String(Math.floor(h)).padStart(2,'0')}:${String(Math.floor(h%1*60)).padStart(2,'0')} UTC`;
@@ -352,7 +365,7 @@ function scene_(s){toView();document.querySelectorAll('#scenes button').forEach(
  if(s==='tag'){spinMode='real';daysPerSec=0.35;setPlay(true);camEarth(2.4,0.95,0.3,-0.55);say('t_tag')}
  else if(s==='jahr'){spinMode='slow';daysPerSec=spd();setPlay(true);camOverview();say('t_jahr')}
  else if(s==='mond'){spinMode='slow';daysPerSec=2;setPlay(true);camEarth(2.6,0.2,1.25,-0.45);say('t_mond')}
- else if(s==='ch'){spinMode='real';setPlay(false);setDoy(Math.floor(curDoy)+mod(12-CC[cc][1]/15,24)/24);camEarth(1.9,0.15,0.8*Math.sin(CC[cc][0]*Math.PI/180),-0.9);say('t_ch')}}
+ else if(s==='ch'){spinMode='slow';daysPerSec=spd();setPlay(true);camEarth(1.9,0.15,0.8*Math.sin(CC[cc][0]*Math.PI/180),-0.9);say('t_ch')}}
 document.querySelectorAll('#scenes button').forEach(b=>b.onclick=()=>scene_(b.dataset.s));
 $('home').onclick=()=>{toView();document.querySelectorAll('#scenes button').forEach(b=>b.classList.remove('on'));spinMode='slow';daysPerSec=spd();camOverview();say('t_start')};
 $('play').onclick=()=>setPlay(!playing);
@@ -368,7 +381,7 @@ const setE=v=>{const d=curDoy;e=v;$('ecc').checked=v>E_REAL;$('ev').textContent=
 $('ecc').onchange=ev=>setE(ev.target.checked?0.2:E_REAL);
 function fmtMult(i){return (T.sx&&T.sx[i])||'—'}
 function setMult(){const i=+$('speed').value,tx=fmtMult(i);if($('spx'))$('spx').textContent=tx;if($('fsSpx'))$('fsSpx').textContent=tx}
-const onSp=()=>{$('spv').textContent=T.sp[+$('speed').value];if($('fsSpv')){$('fsSpv').textContent=$('spv').textContent;$('fsSpeed').value=$('speed').value}setMult();daysPerSec=spd()};
+const onSp=()=>{$('spv').textContent=T.sp[+$('speed').value];if($('fsSpv')){$('fsSpv').textContent=$('spv').textContent;$('fsSpeed').value=$('speed').value}setMult();daysPerSec=spd();update()};
 $('speed').oninput=$('speed').onchange=onSp;
 $('fsSpeed').oninput=$('fsSpeed').onchange=()=>{$('speed').value=$('fsSpeed').value;onSp()};
 $('fsPlay').onclick=()=>setPlay(!playing);
